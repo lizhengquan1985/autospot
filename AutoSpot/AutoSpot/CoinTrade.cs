@@ -94,7 +94,7 @@ namespace AutoSpot
             // buyPrice * (decimal)1.05 < nearHigherOpen && 
         }
 
-        public static void BaseRun(string coin, decimal buyAmount)
+        public static void Start(string coin)
         {
             try
             {
