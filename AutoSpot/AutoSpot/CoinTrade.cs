@@ -133,20 +133,29 @@ namespace AutoSpot
                     // 可以考虑
                     decimal buyQuantity = recommendAmount / nowOpen;
                     buyQuantity = decimal.Round(buyQuantity, GetBuyQuantityPrecisionNumber(coin));
-                    decimal buyPrice = decimal.Round(nowOpen * (decimal)1.005, getPrecisionNumber(coin));
-                    ResponseOrder order = new AccountOrder().NewOrderBuy(accountId, buyQuantity, buyPrice, null, coin, "usdt");
+                    decimal orderPrice = decimal.Round(nowOpen * (decimal)1.005, getPrecisionNumber(coin));
+                    ResponseOrder order = new AccountOrder().NewOrderBuy(accountId, buyQuantity, orderPrice, null, coin, "usdt");
                     if (order.status != "error")
                     {
-                        new CoinDao().InsertLog(new BuyRecord()
+                        new CoinDao().CreateSpotRecord(new SpotRecord()
                         {
-                            BuyCoin = coin,
-                            BuyPrice = buyPrice,
+                            Coin = coin,
+                            UserName = AccountConfig.userName,
+                            BuyTotalQuantity = buyQuantity,
+                            BuyOrderPrice = orderPrice,
                             BuyDate = DateTime.Now,
                             HasSell = false,
                             BuyOrderResult = JsonConvert.SerializeObject(order),
                             BuyAnalyze = JsonConvert.SerializeObject(flexPointList),
-                            BuyAmount = buyQuantity,
-                            UserName = AccountConfig.userName
+                            AccountId = accountId,
+                            BuySuccess = false,
+                            BuyTradePrice = 0,
+                            BuyOrderId = order.data,
+                            BuyOrderQuery = "",
+                            SellAnalyze = "",
+                            SellOrderId = "",
+                            SellOrderQuery = "",
+                            SellOrderResult = ""
                         });
                         ClearData();
                     }
@@ -163,9 +172,9 @@ namespace AutoSpot
                     decimal minBuyPrice = 9999;
                     foreach (var item in list)
                     {
-                        if (item.BuyPrice < minBuyPrice)
+                        if (item.BuyOrderPrice < minBuyPrice)
                         {
-                            minBuyPrice = item.BuyPrice;
+                            minBuyPrice = item.BuyOrderPrice;
                         }
                     }
 
@@ -175,20 +184,29 @@ namespace AutoSpot
                     {
                         decimal buyQuantity = recommendAmount / nowOpen;
                         buyQuantity = decimal.Round(buyQuantity, GetBuyQuantityPrecisionNumber(coin));
-                        decimal buyPrice = decimal.Round(nowOpen * (decimal)1.005, getPrecisionNumber(coin));
-                        ResponseOrder order = new AccountOrder().NewOrderBuy(accountId, buyQuantity, buyPrice, null, coin, "usdt");
+                        decimal orderPrice = decimal.Round(nowOpen * (decimal)1.005, getPrecisionNumber(coin));
+                        ResponseOrder order = new AccountOrder().NewOrderBuy(accountId, buyQuantity, orderPrice, null, coin, "usdt");
                         if (order.status != "error")
                         {
-                            new CoinDao().InsertLog(new BuyRecord()
+                            new CoinDao().CreateSpotRecord(new SpotRecord()
                             {
-                                BuyCoin = coin,
-                                BuyPrice = buyPrice,
+                                Coin = coin,
+                                UserName = AccountConfig.userName,
+                                BuyTotalQuantity = buyQuantity,
+                                BuyOrderPrice = orderPrice,
                                 BuyDate = DateTime.Now,
                                 HasSell = false,
                                 BuyOrderResult = JsonConvert.SerializeObject(order),
                                 BuyAnalyze = JsonConvert.SerializeObject(flexPointList),
-                                UserName = AccountConfig.userName,
-                                BuyAmount = buyQuantity
+                                AccountId = accountId,
+                                BuySuccess = false,
+                                BuyTradePrice = 0,
+                                BuyOrderId = order.data,
+                                BuyOrderQuery = "",
+                                SellAnalyze = "",
+                                SellOrderId = "",
+                                SellOrderQuery = "",
+                                SellOrderResult = ""
                             });
                             usdt = null;
                             noSellCount = -1;
@@ -209,22 +227,22 @@ namespace AutoSpot
                 {
                     // 分析是否 大于
                     decimal itemNowOpen = 0;
-                    decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyPrice, item.BuyDate, coin, "usdt", out itemNowOpen);
+                    decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyOrderPrice, item.BuyDate, coin, "usdt", out itemNowOpen);
 
-                    if (CheckCanSell(item.BuyPrice, higher, itemNowOpen))
+                    if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen))
                     {
-                        decimal sellAmount = item.BuyAmount * (decimal)0.99;
-                        sellAmount = decimal.Round(sellAmount, getSellPrecisionNumber(coin));
+                        decimal sellQuantity = item.BuyTotalQuantity * (decimal)0.99;
+                        sellQuantity = decimal.Round(sellQuantity, getSellPrecisionNumber(coin));
                         // 出售
                         decimal sellPrice = decimal.Round(itemNowOpen * (decimal)0.985, getPrecisionNumber(coin));
-                        ResponseOrder order = new AccountOrder().NewOrderSell(accountId, sellAmount, sellPrice, null, coin, "usdt");
+                        ResponseOrder order = new AccountOrder().NewOrderSell(accountId, sellQuantity, sellPrice, null, coin, "usdt");
                         if (order.status != "error")
                         {
-                            new CoinDao().SetHasSell(item.Id, sellAmount, JsonConvert.SerializeObject(order), JsonConvert.SerializeObject(flexPointList));
+                            new CoinDao().ChangeDataWhenSell(item.Id, sellQuantity, sellPrice, JsonConvert.SerializeObject(order), JsonConvert.SerializeObject(flexPointList), order.data);
                         }
                         else
                         {
-                            logger.Error($"出售结果 coin{coin} accountId:{accountId}  出售数量{sellAmount} itemNowOpen{itemNowOpen} higher{higher} {JsonConvert.SerializeObject(order)}");
+                            logger.Error($"出售结果 coin{coin} accountId:{accountId}  出售数量{sellQuantity} itemNowOpen{itemNowOpen} higher{higher} {JsonConvert.SerializeObject(order)}");
                             logger.Error($"出售结果 分析 {JsonConvert.SerializeObject(flexPointList)}");
                         }
                         usdt = null;
