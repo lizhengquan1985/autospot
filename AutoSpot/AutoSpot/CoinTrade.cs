@@ -53,13 +53,13 @@ namespace AutoSpot
                 usdt = accountInfo.data.list.Find(it => it.currency == "usdt");
             }
 
-            if (noSellCount > 180)
+            if (noSellCount > 80)
             {
                 return usdt.balance / 60;
             }
 
             // 让每个承受8轮
-            return usdt.balance / (240 - noSellCount);
+            return usdt.balance / (120 - noSellCount);
         }
 
         public static void ClearData()
@@ -112,6 +112,7 @@ namespace AutoSpot
             // 获取最近行情
             decimal lastLow;
             decimal nowOpen;
+            // 分析是否下跌， 下跌超过一定数据，可以考虑
             var flexPointList = new CoinAnalyze().Analyze(coin, "usdt", out lastLow, out nowOpen);
             if (flexPointList.Count == 0)
             {
@@ -119,13 +120,27 @@ namespace AutoSpot
                 return;
             }
 
-            // 分析是否下跌， 下跌超过一定数据，可以考虑
-            var noSellCount = new CoinDao().GetNoSellRecordCount(accountId, coin);
-
             decimal recommendAmount = GetRecommendBuyAmount();
-            Console.Write($"------------>{recommendAmount}");
+            Console.Write($"------------> 开始 {coin}  推荐额度：{decimal.Round(recommendAmount, 2)} ");
+
+            try
+            {
+                // 查询出结果还没好的数据， 去搜索一下
+                var noSetBuySuccess = new CoinDao().ListNotSetBuySuccess(accountId, coin);
+                foreach (var item in noSetBuySuccess)
+                {
+                    QueryDetailAndUpdate(item.BuyOrderId);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.Message, ex);
+            }
+
+
             if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > 2)
             {
+                var noSellCount = new CoinDao().GetNoSellRecordCount(accountId, coin);
                 // 最后一次是高位
                 if (noSellCount <= 0 && CheckCanBuy(nowOpen, flexPointList[0].open))
                 {

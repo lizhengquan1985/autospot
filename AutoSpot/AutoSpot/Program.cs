@@ -52,6 +52,10 @@ namespace AutoSpot
             {
                 foreach (var coin in coins)
                 {
+                    if (coin == "btc" || coin == "bch" || coin == "eth")
+                    {
+                        continue;
+                    }
                     Thread.Sleep(1000);
                     CoinTrade.Start(coin);
                 }
