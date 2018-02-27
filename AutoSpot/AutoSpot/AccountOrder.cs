@@ -225,7 +225,7 @@ namespace AutoSpot
             return result;
         }
 
-        public string QueryOrder(string orderId)
+        public ResponseQueryOrder QueryOrder(string orderId, out string orderQuery)
         {
             var action = $"/v1/order/orders/{orderId}";
             var method = "GET";
@@ -242,11 +242,12 @@ namespace AutoSpot
             var url = $"{baseUrl}{action}?{ConvertQueryString(data, true)}";
             int statusCode;
             var result = RequestDataSync(url, method, data, null, out statusCode);
-            Debug.WriteLine(result);
-            return result;
+            orderQuery = result;
+            var res = JsonConvert.DeserializeObject<ResponseQueryOrder>(result);
+            return res;
         }
 
-        public string QueryDetail(string orderId)
+        public ResponseOrderDetail QueryDetail(string orderId, out string orderDetail)
         {
             var action = $"/v1/order/orders/{orderId}/matchresults";
             var method = "GET";
@@ -263,9 +264,10 @@ namespace AutoSpot
             var url = $"{baseUrl}{action}?{ConvertQueryString(data, true)}";
             int statusCode;
             var result = RequestDataSync(url, method, data, null, out statusCode);
-            Debug.WriteLine(result);
+            orderDetail = result;
+            var res = JsonConvert.DeserializeObject<ResponseOrderDetail>(result);
             //如果订单没有成交记录(比如已经撤单的订单)会返回{"status":"error","err-code":"base-record-invalid","err-msg":"record invalid","data":null}
-            return result;
+            return res;
         }
 
         public string GetOrders()

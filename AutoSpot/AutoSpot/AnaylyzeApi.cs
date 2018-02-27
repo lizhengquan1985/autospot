@@ -23,7 +23,7 @@ namespace AutoSpot
             int httpCode = 0;
             var result = RequestDataSync(url, "GET", null, null, out httpCode);
             //Console.WriteLine(result);
-            Console.WriteLine(httpCode);
+            //Console.WriteLine(httpCode);
             return JsonConvert.DeserializeObject<ResponseKline>(result);
         }
 
