@@ -13,48 +13,82 @@ namespace AutoSpot
     {
         public CoinDao()
         {
-            string connectionString = AccountConfig.sqlConfig;//"server=localhost;port=3306;user id=root; password=lyx123456; database=coins; pooling=true; charset=utf8mb4";
+            string connectionString = AccountConfig.sqlConfig;
             var connection = new MySqlConnection(connectionString);
             Database = new DapperConnection(connection);
 
         }
         protected IDapperConnection Database { get; private set; }
 
-        public void InsertLog(BuyRecord buyRecord)
+        public void CreateSpotRecord(SpotRecord spotRecord)
         {
-            if (buyRecord.BuyAnalyze.Length > 4000)
+            if (spotRecord.BuyAnalyze.Length > 4500)
             {
-                buyRecord.BuyAnalyze = buyRecord.BuyAnalyze.Substring(0, 4000);
+                spotRecord.BuyAnalyze = spotRecord.BuyAnalyze.Substring(0, 4500);
             }
-            if (buyRecord.BuyOrderResult.Length > 500)
+            if (spotRecord.BuyOrderResult.Length > 500)
             {
-                buyRecord.BuyOrderResult = buyRecord.BuyOrderResult.Substring(0, 500);
+                spotRecord.BuyOrderResult = spotRecord.BuyOrderResult.Substring(0, 500);
             }
 
             using (var tx = Database.BeginTransaction())
             {
-                Database.Insert(buyRecord);
+                Database.Insert(spotRecord);
                 tx.Commit();
             }
         }
 
-        public List<BuyRecord> ListNoSellRecord(string buyCoin)
+        public void UpdateTradeRecordBuySuccess(string buyOrderId, decimal buyTradePrice, string buyOrderQuery)
         {
-            var sql = $"select * from t_buy_record where BuyCoin = '{buyCoin}' and HasSell=0 and UserName='{AccountConfig.userName}'";
-            return Database.Query<BuyRecord>(sql).ToList();
+            using (var tx = Database.BeginTransaction())
+            {
+                var sql = $"update t_trade_record set BuyOrderQuery='{buyOrderQuery}', BuySuccess=1 , BuyTradePrice={buyTradePrice} where BuyOrderId ='{buyOrderId}'";
+                Database.Execute(sql);
+                tx.Commit();
+            }
+        }
+
+        public List<SpotRecord> ListNotSetBuySuccess(string accountId, string coin)
+        {
+            var sql = $"select * from t_trade_record where AccountId='{accountId}' and Coin = '{coin}' and BuySuccess=0 and UserName='{AccountConfig.userName}'";
+            return Database.Query<SpotRecord>(sql).ToList();
+        }
+
+        /// <summary>
+        /// 获取没有出售的数量
+        /// </summary>
+        /// <param name="accountId"></param>
+        /// <param name="coin"></param>
+        /// <returns></returns>
+        public int GetNoSellRecordCount(string accountId, string coin)
+        {
+            var sql = $"select count(1) from t_trade_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}'";
+            return Database.Query<int>(sql).FirstOrDefault();
+        }
+
+        public List<SpotRecord> ListNoSellRecord(string accountId, string coin)
+        {
+            var sql = $"select * from t_trade_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}'";
+            return Database.Query<SpotRecord>(sql).ToList();
+        }
+
+        public List<SpotRecord> ListBuySuccessAndNoSellRecord(string accountId, string coin)
+        {
+            var sql = $"select * from t_trade_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and BuySuccess=1 and UserName='{AccountConfig.userName}'";
+            return Database.Query<SpotRecord>(sql).ToList();
         }
 
         public int GetAllNoSellRecordCount()
         {
-            var sql = $"select count(1) from t_buy_record where HasSell=0 and UserName='{AccountConfig.userName}'";
+            var sql = $"select count(1) from t_trade_record where HasSell=0 and UserName='{AccountConfig.userName}'";
             return Database.Query<int>(sql).FirstOrDefault();
         }
 
-        public void SetHasSell(long id, decimal sellAmount, string sellOrderResult, string sellAnalyze)
+        public void ChangeDataWhenSell(long id, decimal sellTotalQuantity, decimal sellOrderPrice, string sellOrderResult, string sellAnalyze, string sellOrderId)
         {
-            if (sellAnalyze.Length > 4000)
+            if (sellAnalyze.Length > 4500)
             {
-                sellAnalyze = sellAnalyze.Substring(0, 4000);
+                sellAnalyze = sellAnalyze.Substring(0, 4500);
             }
             if (sellOrderResult.Length > 500)
             {
@@ -63,30 +97,54 @@ namespace AutoSpot
 
             using (var tx = Database.BeginTransaction())
             {
-                var sql = $"update t_buy_record set HasSell=1, SellAmount={sellAmount}, SellDate=now(), SellAnalyze='{sellAnalyze}', SellOrderResult='{sellOrderResult}' where Id = {id}";
+                var sql = $"update t_trade_record set HasSell=1, SellTotalQuantity={sellTotalQuantity}, sellOrderPrice={sellOrderPrice}, SellDate=now(), SellAnalyze='{sellAnalyze}', SellOrderResult='{sellOrderResult}',SellOrderId={sellOrderId} where Id = {id}";
+                Database.Execute(sql);
+                tx.Commit();
+            }
+        }
+
+        public void UpdateTradeRecordSellSuccess(string sellOrderId, decimal sellTradePrice, string sellOrderQuery)
+        {
+            using (var tx = Database.BeginTransaction())
+            {
+                var sql = $"update t_trade_record set SellOrderQuery='{sellOrderQuery}', SellSuccess=1 , SellTradePrice={sellTradePrice} where SellOrderId ='{sellOrderId}'";
                 Database.Execute(sql);
                 tx.Commit();
             }
         }
     }
 
-    [Table("t_buy_record")]
-    public class BuyRecord
+    [Table("t_spot_record")]
+    public class SpotRecord
     {
         public long Id { get; set; }
-        public string BuyCoin { get; set; }
-        public decimal BuyPrice { get; set; }
-        public DateTime BuyDate { get; set; }
+        public string Coin { get; set; }
+        public string AccountId { get; set; }
         public bool HasSell { get; set; }
+        public string UserName { get; set; }
+
+
+        public decimal BuyTotalQuantity { get; set; }
+        public decimal BuyOrderPrice { get; set; }
+        public decimal BuyTradePrice { get; set; }
+        public DateTime BuyDate { get; set; }
+        public string BuyOrderResult { get; set; }
+        public bool BuySuccess { get; set; }
+
+
+        public decimal SellTotalQuantity { get; set; }
+        public decimal SellOrderPrice { get; set; }
+        public decimal SellTradePrice { get; set; }
+        public DateTime SellDate { get; set; }
+        public string SellOrderResult { get; set; }
+        public bool SellSuccess { get; set; }
 
         public string BuyAnalyze { get; set; }
         public string SellAnalyze { get; set; }
-        public string BuyOrderResult { get; set; }
-        public string SellOrderResult { get; set; }
 
-        public DateTime SellDate { get; set; }
-        public decimal SellAmount { get; set; }
-        public decimal BuyAmount { get; set; }
-        public string UserName { get; set; }
+        public string BuyOrderId { get; set; }
+        public string BuyOrderQuery { get; set; }
+        public string SellOrderId { get; set; }
+        public string SellOrderQuery { get; set; }
     }
 }

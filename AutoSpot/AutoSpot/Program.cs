@@ -20,12 +20,26 @@ namespace AutoSpot
             AccountConfig.init("yxq");
 
             Console.WriteLine($"{AccountConfig.mainAccountId}， {AccountConfig.accessKey}， {AccountConfig.secretKey}， {AccountConfig.sqlConfig}");
+            logger.Error("-------------------------- 软件账户配置完成 ---------------------------------");
 
-            Console.Read();
-            //Test();
+            Console.WriteLine("输入1：测试，2：正式运行");
+            var choose = Console.ReadLine();
+            if (choose == "1")
+            {
+                Test.GoTest();
+            }
+            else
+            {
+                while (true)
+                {
+                    Thread.Sleep(1000 * 2);
 
+                    CoinTrade.BeginRun();
+                }
+            }
 
-            Run();
+            Console.WriteLine("输入任意推出");
+            Console.ReadLine();
         }
 
         public static void Test()
