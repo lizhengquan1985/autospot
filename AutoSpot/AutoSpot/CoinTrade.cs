@@ -91,7 +91,6 @@ namespace AutoSpot
             }
 
             return false;
-            // buyPrice * (decimal)1.05 < nearHigherOpen && 
         }
 
         public static void Start(string coin)
@@ -109,6 +108,7 @@ namespace AutoSpot
         public static void BusinessRun(string coin)
         {
             var accountId = AccountConfig.mainAccountId;
+
             // 获取最近行情
             decimal lastLow;
             decimal nowOpen;
@@ -120,15 +120,14 @@ namespace AutoSpot
             }
 
             // 分析是否下跌， 下跌超过一定数据，可以考虑
-            var list = new CoinDao().ListNoSellRecord(coin);
-            Console.WriteLine($"未售出{list.Count}");
+            var noSellCount = new CoinDao().GetNoSellRecordCount(accountId, coin);
 
             decimal recommendAmount = GetRecommendBuyAmount();
             Console.Write($"------------>{recommendAmount}");
             if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > 2)
             {
                 // 最后一次是高位
-                if (list.Count <= 0 && CheckCanBuy(nowOpen, flexPointList[0].open))
+                if (noSellCount <= 0 && CheckCanBuy(nowOpen, flexPointList[0].open))
                 {
                     // 可以考虑
                     decimal buyQuantity = recommendAmount / nowOpen;
@@ -158,6 +157,8 @@ namespace AutoSpot
                             SellOrderResult = ""
                         });
                         ClearData();
+                        // 下单成功马上去查一次
+                        QueryDetailAndUpdate(order.data);
                     }
                     else
                     {
@@ -166,11 +167,12 @@ namespace AutoSpot
                     }
                 }
 
-                if (list.Count > 0)
+                if (noSellCount > 0)
                 {
                     // 获取最小的那个， 如果有，
                     decimal minBuyPrice = 9999;
-                    foreach (var item in list)
+                    var noSellList = new CoinDao().ListNoSellRecord(accountId, coin);
+                    foreach (var item in noSellList)
                     {
                         if (item.BuyOrderPrice < minBuyPrice)
                         {
@@ -179,7 +181,7 @@ namespace AutoSpot
                     }
 
                     // 再少于5%， 
-                    decimal pecent = list.Count >= 15 ? (decimal)1.03 : (decimal)1.025;
+                    decimal pecent = noSellCount >= 15 ? (decimal)1.03 : (decimal)1.025;
                     if (nowOpen * pecent < minBuyPrice)
                     {
                         decimal buyQuantity = recommendAmount / nowOpen;
@@ -208,8 +210,9 @@ namespace AutoSpot
                                 SellOrderQuery = "",
                                 SellOrderResult = ""
                             });
-                            usdt = null;
-                            noSellCount = -1;
+                            ClearData();
+                            // 下单成功马上去查一次
+                            QueryDetailAndUpdate(order.data);
                         }
                         else
                         {
@@ -221,34 +224,77 @@ namespace AutoSpot
             }
 
             // 查询数据库中已经下单数据，如果有，则比较之后的最高值，如果有，则出售
-            if (list.Count > 0)
+            var needSellList = new CoinDao().ListBuySuccessAndNoSellRecord(accountId, coin);
+            foreach (var item in needSellList)
             {
-                foreach (var item in list)
-                {
-                    // 分析是否 大于
-                    decimal itemNowOpen = 0;
-                    decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyOrderPrice, item.BuyDate, coin, "usdt", out itemNowOpen);
+                // 分析是否 大于
+                decimal itemNowOpen = 0;
+                decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyOrderPrice, item.BuyDate, coin, "usdt", out itemNowOpen);
 
-                    if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen))
+                if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen))
+                {
+                    decimal sellQuantity = item.BuyTotalQuantity * (decimal)0.99;
+                    sellQuantity = decimal.Round(sellQuantity, getSellPrecisionNumber(coin));
+                    // 出售
+                    decimal sellPrice = decimal.Round(itemNowOpen * (decimal)0.985, getPrecisionNumber(coin));
+                    ResponseOrder order = new AccountOrder().NewOrderSell(accountId, sellQuantity, sellPrice, null, coin, "usdt");
+                    if (order.status != "error")
                     {
-                        decimal sellQuantity = item.BuyTotalQuantity * (decimal)0.99;
-                        sellQuantity = decimal.Round(sellQuantity, getSellPrecisionNumber(coin));
-                        // 出售
-                        decimal sellPrice = decimal.Round(itemNowOpen * (decimal)0.985, getPrecisionNumber(coin));
-                        ResponseOrder order = new AccountOrder().NewOrderSell(accountId, sellQuantity, sellPrice, null, coin, "usdt");
-                        if (order.status != "error")
-                        {
-                            new CoinDao().ChangeDataWhenSell(item.Id, sellQuantity, sellPrice, JsonConvert.SerializeObject(order), JsonConvert.SerializeObject(flexPointList), order.data);
-                        }
-                        else
-                        {
-                            logger.Error($"出售结果 coin{coin} accountId:{accountId}  出售数量{sellQuantity} itemNowOpen{itemNowOpen} higher{higher} {JsonConvert.SerializeObject(order)}");
-                            logger.Error($"出售结果 分析 {JsonConvert.SerializeObject(flexPointList)}");
-                        }
-                        usdt = null;
-                        noSellCount = -1;
+                        new CoinDao().ChangeDataWhenSell(item.Id, sellQuantity, sellPrice, JsonConvert.SerializeObject(order), JsonConvert.SerializeObject(flexPointList), order.data);
+                        // 下单成功马上去查一次
+                        QuerySellDetailAndUpdate(order.data);
+                    }
+                    else
+                    {
+                        logger.Error($"出售结果 coin{coin} accountId:{accountId}  出售数量{sellQuantity} itemNowOpen{itemNowOpen} higher{higher} {JsonConvert.SerializeObject(order)}");
+                        logger.Error($"出售结果 分析 {JsonConvert.SerializeObject(flexPointList)}");
+                    }
+                    ClearData();
+                }
+            }
+        }
+
+        private static void QueryDetailAndUpdate(string orderId)
+        {
+            string orderQuery = "";
+            var queryOrder = new AccountOrder().QueryOrder(orderId, out orderQuery);
+            if (queryOrder.status == "ok" && queryOrder.data.state == "filled")
+            {
+                string orderDetail = "";
+                var detail = new AccountOrder().QueryDetail(orderId, out orderDetail);
+                decimal maxPrice = 0;
+                foreach (var item in detail.data)
+                {
+                    if (maxPrice < item.price)
+                    {
+                        maxPrice = item.price;
                     }
                 }
+                if (detail.status == "ok")
+                {
+                    new CoinDao().UpdateTradeRecordBuySuccess(orderId, maxPrice, orderQuery);
+                }
+            }
+        }
+
+        private static void QuerySellDetailAndUpdate(string orderId)
+        {
+            string orderQuery = "";
+            var queryOrder = new AccountOrder().QueryOrder(orderId, out orderQuery);
+            if (queryOrder.status == "ok" && queryOrder.data.state == "filled")
+            {
+                string orderDetail = "";
+                var detail = new AccountOrder().QueryDetail(orderId, out orderDetail);
+                decimal minPrice = 99999999;
+                foreach (var item in detail.data)
+                {
+                    if (minPrice > item.price)
+                    {
+                        minPrice = item.price;
+                    }
+                }
+                // 完成
+                new CoinDao().UpdateTradeRecordSellSuccess(orderId, minPrice, orderQuery);
             }
         }
 

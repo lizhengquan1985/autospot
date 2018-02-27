@@ -42,7 +42,7 @@ namespace AutoSpot
         {
             using (var tx = Database.BeginTransaction())
             {
-                var sql = $"update t_trade_record set BuyOrderQuery='{buyOrderQuery}', BuySuccess=1 , BuyTradePrice={buyTradePrice} where BuyOrderId ='{buyOrderId}'";
+                var sql = $"update t_spot_record set BuyOrderQuery='{buyOrderQuery}', BuySuccess=1 , BuyTradePrice={buyTradePrice} where BuyOrderId ='{buyOrderId}'";
                 Database.Execute(sql);
                 tx.Commit();
             }
@@ -50,7 +50,7 @@ namespace AutoSpot
 
         public List<SpotRecord> ListNotSetBuySuccess(string accountId, string coin)
         {
-            var sql = $"select * from t_trade_record where AccountId='{accountId}' and Coin = '{coin}' and BuySuccess=0 and UserName='{AccountConfig.userName}'";
+            var sql = $"select * from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and BuySuccess=0 and UserName='{AccountConfig.userName}'";
             return Database.Query<SpotRecord>(sql).ToList();
         }
 
@@ -62,25 +62,25 @@ namespace AutoSpot
         /// <returns></returns>
         public int GetNoSellRecordCount(string accountId, string coin)
         {
-            var sql = $"select count(1) from t_trade_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}'";
+            var sql = $"select count(1) from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}'";
             return Database.Query<int>(sql).FirstOrDefault();
         }
 
         public List<SpotRecord> ListNoSellRecord(string accountId, string coin)
         {
-            var sql = $"select * from t_trade_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}'";
+            var sql = $"select * from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}'";
             return Database.Query<SpotRecord>(sql).ToList();
         }
 
         public List<SpotRecord> ListBuySuccessAndNoSellRecord(string accountId, string coin)
         {
-            var sql = $"select * from t_trade_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and BuySuccess=1 and UserName='{AccountConfig.userName}'";
+            var sql = $"select * from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and BuySuccess=1 and UserName='{AccountConfig.userName}'";
             return Database.Query<SpotRecord>(sql).ToList();
         }
 
         public int GetAllNoSellRecordCount()
         {
-            var sql = $"select count(1) from t_trade_record where HasSell=0 and UserName='{AccountConfig.userName}'";
+            var sql = $"select count(1) from t_spot_record where HasSell=0 and UserName='{AccountConfig.userName}'";
             return Database.Query<int>(sql).FirstOrDefault();
         }
 
@@ -97,7 +97,7 @@ namespace AutoSpot
 
             using (var tx = Database.BeginTransaction())
             {
-                var sql = $"update t_trade_record set HasSell=1, SellTotalQuantity={sellTotalQuantity}, sellOrderPrice={sellOrderPrice}, SellDate=now(), SellAnalyze='{sellAnalyze}', SellOrderResult='{sellOrderResult}',SellOrderId={sellOrderId} where Id = {id}";
+                var sql = $"update t_spot_record set HasSell=1, SellTotalQuantity={sellTotalQuantity}, sellOrderPrice={sellOrderPrice}, SellDate=now(), SellAnalyze='{sellAnalyze}', SellOrderResult='{sellOrderResult}',SellOrderId={sellOrderId} where Id = {id}";
                 Database.Execute(sql);
                 tx.Commit();
             }
@@ -107,7 +107,7 @@ namespace AutoSpot
         {
             using (var tx = Database.BeginTransaction())
             {
-                var sql = $"update t_trade_record set SellOrderQuery='{sellOrderQuery}', SellSuccess=1 , SellTradePrice={sellTradePrice} where SellOrderId ='{sellOrderId}'";
+                var sql = $"update t_spot_record set SellOrderQuery='{sellOrderQuery}', SellSuccess=1 , SellTradePrice={sellTradePrice} where SellOrderId ='{sellOrderId}'";
                 Database.Execute(sql);
                 tx.Commit();
             }
