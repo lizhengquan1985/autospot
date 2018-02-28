@@ -54,6 +54,12 @@ namespace AutoSpot
             return Database.Query<SpotRecord>(sql).ToList();
         }
 
+        public List<SpotRecord> ListHasSellNotSetSellSuccess(string accountId, string coin)
+        {
+            var sql = $"select * from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and SellSuccess=0 and HasSell=1 and UserName='{AccountConfig.userName}'";
+            return Database.Query<SpotRecord>(sql).ToList();
+        }
+
         /// <summary>
         /// 获取没有出售的数量
         /// </summary>

@@ -52,7 +52,7 @@ namespace AutoSpot
             {
                 foreach (var coin in coins)
                 {
-                    if (coin == "btc" || coin == "bch" || coin == "eth")
+                    if (coin == "btc")
                     {
                         continue;
                     }

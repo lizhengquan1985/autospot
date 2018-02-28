@@ -55,11 +55,11 @@ namespace AutoSpot
 
             if (noSellCount > 80)
             {
-                return usdt.balance / 60;
+                return usdt.balance / 30;
             }
 
             // 让每个承受8轮
-            return usdt.balance / (120 - noSellCount);
+            return usdt.balance / (100 - noSellCount);
         }
 
         public static void ClearData()
@@ -130,6 +130,21 @@ namespace AutoSpot
                 foreach (var item in noSetBuySuccess)
                 {
                     QueryDetailAndUpdate(item.BuyOrderId);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex.Message, ex);
+            }
+
+            try
+            {
+                // 查询出结果还没好的数据， 去搜索一下
+                var noSetSellSuccess = new CoinDao().ListHasSellNotSetSellSuccess(accountId, coin);
+                foreach (var item in noSetSellSuccess)
+                {
+                    Console.WriteLine("----------> " + JsonConvert.SerializeObject(item));
+                    QuerySellDetailAndUpdate(item.SellOrderId);
                 }
             }
             catch (Exception ex)
