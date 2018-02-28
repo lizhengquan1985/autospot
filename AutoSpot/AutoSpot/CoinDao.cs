@@ -78,6 +78,18 @@ namespace AutoSpot
             return Database.Query<SpotRecord>(sql).ToList();
         }
 
+        public List<SpotRecord> ListAllNoSellRecord(string accountId)
+        {
+            var sql = $"select * from t_spot_record where AccountId='{accountId}' and HasSell=0 and UserName='{AccountConfig.userName}'";
+            return Database.Query<SpotRecord>(sql).ToList();
+        }
+
+        public List<BuyRecord> ListNoSellRecordFromOther()
+        {
+            var sql = $"select * from t_buy_record where HasSell=0 and UserName='{AccountConfig.userName}'";
+            return Database.Query<BuyRecord>(sql).ToList();
+        }
+
         public List<SpotRecord> ListBuySuccessAndNoSellRecord(string accountId, string coin)
         {
             var sql = $"select * from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and BuySuccess=1 and UserName='{AccountConfig.userName}'";
@@ -152,5 +164,24 @@ namespace AutoSpot
         public string BuyOrderQuery { get; set; }
         public string SellOrderId { get; set; }
         public string SellOrderQuery { get; set; }
+    }
+
+    public class BuyRecord
+    {
+        public long Id { get; set; }
+        public string BuyCoin { get; set; }
+        public decimal BuyPrice { get; set; }
+        public DateTime BuyDate { get; set; }
+        public bool HasSell { get; set; }
+
+        public string BuyAnalyze { get; set; }
+        public string SellAnalyze { get; set; }
+        public string BuyOrderResult { get; set; }
+        public string SellOrderResult { get; set; }
+
+        public DateTime SellDate { get; set; }
+        public decimal SellAmount { get; set; }
+        public decimal BuyAmount { get; set; }
+        public string UserName { get; set; }
     }
 }

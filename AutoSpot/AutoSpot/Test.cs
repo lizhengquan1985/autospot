@@ -23,6 +23,10 @@ namespace AutoSpot
                 {
                     Order();
                 }
+                else if (f == "detail")
+                {
+                    AccountBalanceDetail();
+                }
             }
         }
 
@@ -89,6 +93,65 @@ namespace AutoSpot
                 string orderDetail = "";
                 var detail = new AccountOrder().QueryDetail(orderId, out orderDetail);
                 Console.WriteLine(detail);
+            }
+        }
+
+        public static void AccountBalanceDetail()
+        {
+            while (true)
+            {
+                Console.WriteLine("请输入 accountname：");
+                var name = Console.ReadLine();
+                AccountConfig.init(name);
+
+                // 获取主账户的财富值
+                var accountBalance = new AccountOrder().AccountBalance(AccountConfig.mainAccountId);
+                //foreach (var item in accountBalance.data.list)
+                //{
+                //    Console.WriteLine($"{item.currency} -- {item.balance}");
+                //}
+
+                // 统计被套牢的数据
+                Dictionary<string, decimal> coins = new Dictionary<string, decimal>();
+
+                var noselllist = new CoinDao().ListAllNoSellRecord(AccountConfig.mainAccountId);
+                foreach(var item in noselllist)
+                {
+                    if (coins.ContainsKey(item.Coin))
+                    {
+                        coins[item.Coin] += item.BuyTotalQuantity;
+                    }
+                    else
+                    {
+                        coins.Add(item.Coin, item.BuyTotalQuantity);
+                    }
+                }
+
+                var noselllist2 = new CoinDao().ListNoSellRecordFromOther();
+                foreach (var item in noselllist2)
+                {
+                    if (coins.ContainsKey(item.BuyCoin))
+                    {
+                        coins[item.BuyCoin] += item.BuyAmount;
+                    }
+                    else
+                    {
+                        coins.Add(item.BuyCoin, item.BuyAmount);
+                    }
+                }
+                foreach (var item in accountBalance.data.list)
+                {
+                    if(item.balance == 0)
+                    {
+                        continue;
+                    }
+                    decimal tl = 0;
+                    if (coins.ContainsKey(item.currency))
+                    {
+                        tl = coins[item.currency];
+                    }
+                    Console.WriteLine($"{item.currency} -- {item.balance} --》{tl}");
+                }
             }
         }
     }
