@@ -11,6 +11,8 @@ namespace AutoSpot
     {
         public static void GoTest()
         {
+            Console.WriteLine(new CoinAnalyze().CalcPercent("eos"));
+
             while (true)
             {
                 Console.WriteLine("请选择进入测试的分支");

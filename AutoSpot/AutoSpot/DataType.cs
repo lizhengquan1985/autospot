@@ -103,4 +103,12 @@ namespace AutoSpot
         public decimal balance { get; set; }
         public string type { get; set; }
     }
+
+    public enum CalcPriceHuiluo
+    {
+        littlest,
+        little,
+        high,
+        highest,
+    }
 }

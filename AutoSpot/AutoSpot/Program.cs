@@ -37,7 +37,7 @@ namespace AutoSpot
             Console.ReadLine();
         }
 
-        private static List<string> coins = new List<string>() {
+        public static List<string> coins = new List<string>() {
             "btc","bch","eth","etc","ltc",
             "eos","xrp","omg","dash","zec",
             // 创新

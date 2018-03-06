@@ -8,6 +8,13 @@ using System.Threading.Tasks;
 
 namespace AutoSpot
 {
+    /// <summary>
+    /// 如果已存交易量recordcount少，则减少更多才购入。 如果交易良多，则少也购入。 同下。
+    /// 如果交易量少，则购入少一些。 如果多。则购入多一些。，--》 30-n 计算最近一段时间的价格回落排行。 来动态决定投资方向
+    /// 计算频率加大?????????????????。
+    /// 每沉淀一个，多加0.5% 最高不超过10%
+    /// 稳定值得计算， 越稳定，越快速出手??????????????
+    /// </summary>
     public class CoinTrade
     {
         static ILog logger = LogManager.GetLogger(typeof(CoinTrade));
@@ -39,7 +46,7 @@ namespace AutoSpot
             return true;
         }
 
-        public static decimal GetRecommendBuyAmount()
+        public static decimal GetRecommendBuyAmount(string coin)
         {
             if (noSellCount < 0)
             {
@@ -53,13 +60,39 @@ namespace AutoSpot
                 usdt = accountInfo.data.list.Find(it => it.currency == "usdt");
             }
 
-            if (noSellCount > 80)
+            var calcPencert = getCalcPencent(new CoinAnalyze().CalcPercent(coin));
+
+            if(noSellCount < 80)
             {
-                return usdt.balance / 30;
+                return (usdt.balance / 80) / calcPencert;///  0.8,  1,  1.2,  1.5;
             }
 
-            // 让每个承受8轮
-            return usdt.balance / (100 - noSellCount);
+            return (usdt.balance / 30)/ calcPencert;///  0.8,  1,  1.2,  1.5;
+
+            //if (noSellCount > 80)
+            //{
+            //    return usdt.balance / 30;
+            //}
+
+            //// 让每个承受8轮
+            //return usdt.balance / (100 - noSellCount);
+        }
+
+        private static decimal getCalcPencent(CalcPriceHuiluo huiluo)
+        {
+            if(huiluo == CalcPriceHuiluo.high)
+            {
+                return (decimal)1;
+            }
+            if(huiluo == CalcPriceHuiluo.highest)
+            {
+                return (decimal)0.8;
+            }
+            if(huiluo == CalcPriceHuiluo.little)
+            {
+                return (decimal)1.2;
+            }
+            return (decimal)1.5;
         }
 
         public static void ClearData()
@@ -74,11 +107,11 @@ namespace AutoSpot
             return nowOpen > nearLowOpen * (decimal)1.005 && nowOpen < nearLowOpen * (decimal)1.01;
         }
 
-        public static bool CheckCanSell(decimal buyPrice, decimal nearHigherOpen, decimal nowOpen)
+        public static bool CheckCanSell(decimal buyPrice, decimal nearHigherOpen, decimal nowOpen, decimal gaoyuPercentSell = (decimal)1.03)
         {
             //item.BuyPrice, higher, itemNowOpen
             // if (item.BuyPrice * (decimal)1.05 < higher && itemNowOpen * (decimal)1.005 < higher)
-            if (nowOpen < buyPrice * (decimal)1.03)
+            if (nowOpen < buyPrice * gaoyuPercentSell)
             {
                 // 如果不高于 3% 没有意义
                 return false;
@@ -120,7 +153,7 @@ namespace AutoSpot
                 return;
             }
 
-            decimal recommendAmount = GetRecommendBuyAmount();
+            decimal recommendAmount = GetRecommendBuyAmount(coin);
             Console.Write($"------------> 开始 {coin}  推荐额度：{decimal.Round(recommendAmount, 2)} ");
 
             try
@@ -156,8 +189,8 @@ namespace AutoSpot
             if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > 2)
             {
                 var noSellCount = new CoinDao().GetNoSellRecordCount(accountId, coin);
-                // 最后一次是高位
-                if (noSellCount <= 0 && CheckCanBuy(nowOpen, flexPointList[0].open))
+                // 最后一次是高位, 没有交易记录， 则判断是否少于最近的6%
+                if (noSellCount <= 0 && CheckCanBuy(nowOpen, flexPointList[0].open) && new CoinAnalyze().CheckCalcMaxhuoluo(coin, "usdt", "5min"))
                 {
                     // 可以考虑
                     decimal buyQuantity = recommendAmount / nowOpen;
@@ -211,7 +244,8 @@ namespace AutoSpot
                     }
 
                     // 再少于5%， 
-                    decimal pecent = noSellCount >= 15 ? (decimal)1.03 : (decimal)1.025;
+                    var per = new CoinAnalyze().CalcPercent(coin);
+                    decimal pecent = getCalcPencent222(per);//noSellCount >= 15 ? (decimal)1.03 : (decimal)1.025;
                     if (nowOpen * pecent < minBuyPrice)
                     {
                         decimal buyQuantity = recommendAmount / nowOpen;
@@ -261,7 +295,32 @@ namespace AutoSpot
                 decimal itemNowOpen = 0;
                 decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyOrderPrice, item.BuyDate, coin, "usdt", out itemNowOpen);
 
-                if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen))
+                decimal gaoyuPercentSell = (decimal)1.03;
+                if(needSellList.Count > 10)
+                {
+                    gaoyuPercentSell = (decimal)1.06;
+                }else if (needSellList.Count > 9)
+                {
+                    gaoyuPercentSell = (decimal)1.055;
+                }
+                else if (needSellList.Count > 8)
+                {
+                    gaoyuPercentSell = (decimal)1.05;
+                }
+                else if (needSellList.Count > 7)
+                {
+                    gaoyuPercentSell = (decimal)1.045;
+                }
+                else if (needSellList.Count > 6)
+                {
+                    gaoyuPercentSell = (decimal)1.04;
+                }
+                else if (needSellList.Count > 5)
+                {
+                    gaoyuPercentSell = (decimal)1.035;
+                }
+
+                if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen, gaoyuPercentSell))
                 {
                     decimal sellQuantity = item.BuyTotalQuantity * (decimal)0.99;
                     sellQuantity = decimal.Round(sellQuantity, getSellPrecisionNumber(coin));
@@ -282,6 +341,23 @@ namespace AutoSpot
                     ClearData();
                 }
             }
+        }
+
+        private static decimal getCalcPencent222(CalcPriceHuiluo huiluo)
+        {
+            if (huiluo == CalcPriceHuiluo.high)
+            {
+                return (decimal)1.025;
+            }
+            if (huiluo == CalcPriceHuiluo.highest)
+            {
+                return (decimal)1.02;
+            }
+            if (huiluo == CalcPriceHuiluo.little)
+            {
+                return (decimal)1.03;
+            }
+            return (decimal)1.035;
         }
 
         private static void QueryDetailAndUpdate(string orderId)
