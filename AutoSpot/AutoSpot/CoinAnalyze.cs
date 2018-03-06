@@ -76,7 +76,7 @@ namespace AutoSpot
         private static Dictionary<string, decimal> dic;
         public CalcPriceHuiluo CalcPercent(string coinCom)
         {
-            if(dic ==null || lastCalcDate == null || lastCalcDate < DateTime.Now.AddHours(3))
+            if(dic ==null || lastCalcDate == null || lastCalcDate < DateTime.Now.AddHours(-3))
             {
                 dic = new Dictionary<string, decimal>();
                 foreach (var coin in Program.coins)
