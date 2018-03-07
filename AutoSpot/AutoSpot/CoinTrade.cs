@@ -448,7 +448,7 @@ namespace AutoSpot
 
         public static int getSellPrecisionNumber(string coin)
         {
-            if (coin == "cvc" || coin == "ht" || coin == "xrp")
+            if (coin == "cvc" || coin == "ht" || coin == "xrp" || coin == "ela")
             {
                 return 2;
             }
