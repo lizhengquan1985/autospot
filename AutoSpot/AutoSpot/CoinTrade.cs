@@ -62,12 +62,12 @@ namespace AutoSpot
 
             var calcPencert = getCalcPencent(new CoinAnalyze().CalcPercent(coin));
 
-            if(noSellCount < 80)
+            if (noSellCount < 80)
             {
                 return (usdt.balance / 80) / calcPencert;///  0.8,  1,  1.2,  1.5;
             }
 
-            return (usdt.balance / 30)/ calcPencert;///  0.8,  1,  1.2,  1.5;
+            return (usdt.balance / 30) / calcPencert;///  0.8,  1,  1.2,  1.5;
 
             //if (noSellCount > 80)
             //{
@@ -80,15 +80,15 @@ namespace AutoSpot
 
         private static decimal getCalcPencent(CalcPriceHuiluo huiluo)
         {
-            if(huiluo == CalcPriceHuiluo.high)
+            if (huiluo == CalcPriceHuiluo.high)
             {
                 return (decimal)1;
             }
-            if(huiluo == CalcPriceHuiluo.highest)
+            if (huiluo == CalcPriceHuiluo.highest)
             {
                 return (decimal)0.8;
             }
-            if(huiluo == CalcPriceHuiluo.little)
+            if (huiluo == CalcPriceHuiluo.little)
             {
                 return (decimal)1.2;
             }
@@ -186,7 +186,7 @@ namespace AutoSpot
             }
 
 
-            if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > 2)
+            if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > (decimal)0.5)
             {
                 var noSellCount = new CoinDao().GetNoSellRecordCount(accountId, coin);
                 // 最后一次是高位, 没有交易记录， 则判断是否少于最近的6%
@@ -296,28 +296,29 @@ namespace AutoSpot
                 decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyOrderPrice, item.BuyDate, coin, "usdt", out itemNowOpen);
 
                 decimal gaoyuPercentSell = (decimal)1.03;
-                if(needSellList.Count > 10)
-                {
-                    gaoyuPercentSell = (decimal)1.06;
-                }else if (needSellList.Count > 9)
-                {
-                    gaoyuPercentSell = (decimal)1.055;
-                }
-                else if (needSellList.Count > 8)
-                {
-                    gaoyuPercentSell = (decimal)1.05;
-                }
-                else if (needSellList.Count > 7)
+                if (needSellList.Count > 10)
                 {
                     gaoyuPercentSell = (decimal)1.045;
                 }
-                else if (needSellList.Count > 6)
+                else if (needSellList.Count > 9)
+                {
+                    gaoyuPercentSell = (decimal)1.042;
+                }
+                else if (needSellList.Count > 8)
                 {
                     gaoyuPercentSell = (decimal)1.04;
                 }
-                else if (needSellList.Count > 5)
+                else if (needSellList.Count > 7)
+                {
+                    gaoyuPercentSell = (decimal)1.038;
+                }
+                else if (needSellList.Count > 6)
                 {
                     gaoyuPercentSell = (decimal)1.035;
+                }
+                else if (needSellList.Count > 5)
+                {
+                    gaoyuPercentSell = (decimal)1.032;
                 }
 
                 if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen, gaoyuPercentSell))

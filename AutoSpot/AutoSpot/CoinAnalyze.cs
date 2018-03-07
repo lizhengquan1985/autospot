@@ -50,21 +50,21 @@ namespace AutoSpot
         }
 
 
-        public decimal GetMinAndMax(string coin, string toCoin, string minPeriod="1min")
+        public decimal GetMinAndMax(string coin, string toCoin, string minPeriod = "1min")
         {
             ResponseKline res = new AnaylyzeApi().kline(coin + toCoin, minPeriod, 1440);
             Console.WriteLine(Utils.GetDateById(res.data[0].id));
-            Console.WriteLine(Utils.GetDateById(res.data[res.data.Count-1].id));
+            Console.WriteLine(Utils.GetDateById(res.data[res.data.Count - 1].id));
             decimal max = 0;
             decimal min = 999999;
             decimal now = res.data[0].open;
-            foreach(var item in res.data)
+            foreach (var item in res.data)
             {
-                if(max < item.open)
+                if (max < item.open)
                 {
                     max = item.open;
                 }
-                if(min > item.open)
+                if (min > item.open)
                 {
                     min = item.open;
                 }
@@ -76,7 +76,7 @@ namespace AutoSpot
         private static Dictionary<string, decimal> dic;
         public CalcPriceHuiluo CalcPercent(string coinCom)
         {
-            if(dic ==null || lastCalcDate == null || lastCalcDate < DateTime.Now.AddHours(-3))
+            if (dic == null || lastCalcDate == null || lastCalcDate < DateTime.Now.AddHours(-3))
             {
                 dic = new Dictionary<string, decimal>();
                 foreach (var coin in Program.coins)
@@ -89,27 +89,27 @@ namespace AutoSpot
             }
 
             var count = 0;
-            foreach(var k in dic.Keys)
+            foreach (var k in dic.Keys)
             {
-                if(k == coinCom)
+                if (k == coinCom)
                 {
                     continue;
                 }
-                if(dic[k] > dic[coinCom])
+                if (dic[k] > dic[coinCom])
                 {
                     count++;
                 }
             }
-            if(count < 8)
+            if (count < 8)
             {
                 // 回落最少
                 return CalcPriceHuiluo.littlest;
             }
-            if(count < 16)
+            if (count < 16)
             {
                 return CalcPriceHuiluo.little;
             }
-            if(count < 24)
+            if (count < 24)
             {
                 return CalcPriceHuiluo.high;
             }
@@ -244,7 +244,8 @@ namespace AutoSpot
             }
             catch (Exception ex)
             {
-                Console.WriteLine("1111111111111111111111 over");
+                logger.Error(ex.Message, ex);
+                Console.WriteLine("1111111111111111111111 over  " + ex.Message);
             }
             return higher;
         }
