@@ -138,15 +138,47 @@ namespace AutoSpot
             }
         }
 
+        public static bool IsQuickRise(ResponseKline res)
+        {
+            // 判断是否快速上涨，如果是快速上涨，防止追涨
+            var klineData = res.data;
+            // 暂时判断 1个小时内是否上涨超过12%， 如果超过，则控制下
+            var max = (decimal)0;
+            var min = (decimal)9999999;
+            var nowOpen = klineData[0].open;
+            for(var i=0; i< 60; i++)
+            {
+                var item = klineData[i];
+                if(max < item.open)
+                {
+                    max = item.open;
+                }
+                if(min > item.open)
+                {
+                    min = item.open;
+                }
+            }
+            bool isQuickRise = false;
+            if(max > min * (decimal)1.12)
+            {
+                if(nowOpen > min * (decimal)1.03)
+                {
+                    logger.Error("一个小时内有大量的上涨，防止追涨，所以不能交易。");
+                    isQuickRise = true;
+                }
+            }
+            return isQuickRise;
+        }
+
         public static void BusinessRun(string coin)
         {
             var accountId = AccountConfig.mainAccountId;
-
+            ResponseKline res = new AnaylyzeApi().kline(coin + "usdt", "1min", 1440);
             // 获取最近行情
             decimal lastLow;
             decimal nowOpen;
             // 分析是否下跌， 下跌超过一定数据，可以考虑
-            var flexPointList = new CoinAnalyze().Analyze(coin, "usdt", out lastLow, out nowOpen);
+            var flexPointList = new CoinAnalyze().Analyze(res, out lastLow, out nowOpen);
             if (flexPointList.Count == 0)
             {
                 logger.Error($"--------------> 分析结果数量为0 {coin}");
@@ -154,7 +186,7 @@ namespace AutoSpot
             }
 
             decimal recommendAmount = GetRecommendBuyAmount(coin);
-            Console.Write($"------------> 开始 {coin}  推荐额度：{decimal.Round(recommendAmount, 2)} ");
+            Console.Write($"spot--------> 开始 {coin}  推荐额度：{decimal.Round(recommendAmount, 2)} ");
 
             try
             {
@@ -185,8 +217,7 @@ namespace AutoSpot
                 logger.Error(ex.Message, ex);
             }
 
-
-            if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > (decimal)0.5)
+            if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > (decimal)0.5 && !IsQuickRise(res))
             {
                 var noSellCount = new CoinDao().GetNoSellRecordCount(accountId, coin);
                 // 最后一次是高位, 没有交易记录， 则判断是否少于最近的6%
