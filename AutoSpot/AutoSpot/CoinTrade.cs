@@ -217,7 +217,7 @@ namespace AutoSpot
                 logger.Error(ex.Message, ex);
             }
 
-            if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > (decimal)0.5 && !IsQuickRise(res))
+            if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > (decimal)0.3 && !IsQuickRise(res))
             {
                 var noSellCount = new CoinDao().GetNoSellRecordCount(accountId, coin);
                 // 最后一次是高位, 没有交易记录， 则判断是否少于最近的6%
