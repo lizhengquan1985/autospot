@@ -12,7 +12,7 @@ namespace AutoSpot
 {
     public class AnaylyzeApi
     {
-        private const string domain = "api.huobi.pro/market";// "be.huobi.com";
+        private const string domain = "api.huobipro.com/market";// "be.huobi.com";
         private string baseUrl = $"https://{domain}";
 
         public ResponseKline kline(string symbol, string period, int size = 300)
