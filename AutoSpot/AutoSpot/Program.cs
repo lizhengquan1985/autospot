@@ -41,7 +41,7 @@ namespace AutoSpot
             "btc","bch","eth","etc","ltc",
             "eos","xrp","omg","dash","zec",
             // 创新
-            "mds","ela",
+            "trx","mds","ela",
             "itc","nas","ruff","zil","dta",
             "let","ht","theta","hsr","qtum",
             "snt","iost","neo","storj","gnt",
