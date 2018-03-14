@@ -379,18 +379,18 @@ namespace AutoSpot
         {
             if (huiluo == CalcPriceHuiluo.highest)
             {
-                return (decimal)1.024;
+                return (decimal)1.022;
             }
             if (huiluo == CalcPriceHuiluo.high)
             {
-                return (decimal)1.026;
+                return (decimal)1.025;
             }
             
             if (huiluo == CalcPriceHuiluo.little)
             {
                 return (decimal)1.028;
             }
-            return (decimal)1.030;
+            return (decimal)1.031;
         }
 
         private static void QueryDetailAndUpdate(string orderId)
