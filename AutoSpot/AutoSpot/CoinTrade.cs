@@ -329,27 +329,27 @@ namespace AutoSpot
                 decimal gaoyuPercentSell = (decimal)1.03;
                 if (needSellList.Count > 10)
                 {
-                    gaoyuPercentSell = (decimal)1.045;
+                    gaoyuPercentSell = (decimal)1.050;
                 }
                 else if (needSellList.Count > 9)
                 {
-                    gaoyuPercentSell = (decimal)1.042;
+                    gaoyuPercentSell = (decimal)1.048;
                 }
                 else if (needSellList.Count > 8)
                 {
-                    gaoyuPercentSell = (decimal)1.04;
+                    gaoyuPercentSell = (decimal)1.046;
                 }
                 else if (needSellList.Count > 7)
                 {
-                    gaoyuPercentSell = (decimal)1.038;
+                    gaoyuPercentSell = (decimal)1.044;
                 }
                 else if (needSellList.Count > 6)
                 {
-                    gaoyuPercentSell = (decimal)1.035;
+                    gaoyuPercentSell = (decimal)1.042;
                 }
                 else if (needSellList.Count > 5)
                 {
-                    gaoyuPercentSell = (decimal)1.032;
+                    gaoyuPercentSell = (decimal)1.04;
                 }
 
                 if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen, gaoyuPercentSell))
@@ -377,19 +377,20 @@ namespace AutoSpot
 
         private static decimal getCalcPencent222(CalcPriceHuiluo huiluo)
         {
-            if (huiluo == CalcPriceHuiluo.high)
-            {
-                return (decimal)1.025;
-            }
             if (huiluo == CalcPriceHuiluo.highest)
             {
-                return (decimal)1.02;
+                return (decimal)1.024;
             }
+            if (huiluo == CalcPriceHuiluo.high)
+            {
+                return (decimal)1.026;
+            }
+            
             if (huiluo == CalcPriceHuiluo.little)
             {
-                return (decimal)1.03;
+                return (decimal)1.028;
             }
-            return (decimal)1.035;
+            return (decimal)1.030;
         }
 
         private static void QueryDetailAndUpdate(string orderId)
