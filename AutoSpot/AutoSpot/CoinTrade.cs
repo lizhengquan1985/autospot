@@ -71,8 +71,9 @@ namespace AutoSpot
             recommend = (usdt.balance / 30) / calcPencert;///  0.8,  1,  1.2,  1.5;
             if (recommend > 6)
             {
-                return 6;
+                recommend = 6;
             }
+            return recommend;
 
             //if (noSellCount > 80)
             //{
