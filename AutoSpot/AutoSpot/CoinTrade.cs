@@ -62,12 +62,17 @@ namespace AutoSpot
 
             var calcPencert = getCalcPencent(new CoinAnalyze().CalcPercent(coin));
 
+            decimal recommend = 0;
             if (noSellCount < 80)
             {
-                return (usdt.balance / 80) / calcPencert;///  0.8,  1,  1.2,  1.5;
+                recommend = (usdt.balance / 80) / calcPencert;///  0.8,  1,  1.2,  1.5;
             }
 
-            return (usdt.balance / 30) / calcPencert;///  0.8,  1,  1.2,  1.5;
+            recommend = (usdt.balance / 30) / calcPencert;///  0.8,  1,  1.2,  1.5;
+            if (recommend > 6)
+            {
+                return 6;
+            }
 
             //if (noSellCount > 80)
             //{
@@ -146,22 +151,22 @@ namespace AutoSpot
             var max = (decimal)0;
             var min = (decimal)9999999;
             var nowOpen = klineData[0].open;
-            for(var i=0; i< 60; i++)
+            for (var i = 0; i < 60; i++)
             {
                 var item = klineData[i];
-                if(max < item.open)
+                if (max < item.open)
                 {
                     max = item.open;
                 }
-                if(min > item.open)
+                if (min > item.open)
                 {
                     min = item.open;
                 }
             }
             bool isQuickRise = false;
-            if(max > min * (decimal)1.12)
+            if (max > min * (decimal)1.12)
             {
-                if(nowOpen > min * (decimal)1.03)
+                if (nowOpen > min * (decimal)1.03)
                 {
                     logger.Error("一个小时内有大量的上涨，防止追涨，所以不能交易。");
                     isQuickRise = true;
@@ -385,7 +390,7 @@ namespace AutoSpot
             {
                 return (decimal)1.025;
             }
-            
+
             if (huiluo == CalcPriceHuiluo.little)
             {
                 return (decimal)1.028;
