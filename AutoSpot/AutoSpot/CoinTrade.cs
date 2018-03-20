@@ -67,8 +67,10 @@ namespace AutoSpot
             {
                 recommend = (usdt.balance / 80) / calcPencert;///  0.8,  1,  1.2,  1.5;
             }
-
-            recommend = (usdt.balance / 50) / calcPencert;///  0.8,  1,  1.2,  1.5;
+            else
+            {
+                recommend = (usdt.balance / 50) / calcPencert;///  0.8,  1,  1.2,  1.5;
+            }
             if (recommend > (decimal)6.5)
             {
                 recommend = (decimal)6.5;
