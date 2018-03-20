@@ -68,10 +68,10 @@ namespace AutoSpot
                 recommend = (usdt.balance / 80) / calcPencert;///  0.8,  1,  1.2,  1.5;
             }
 
-            recommend = (usdt.balance / 30) / calcPencert;///  0.8,  1,  1.2,  1.5;
-            if (recommend > 6)
+            recommend = (usdt.balance / 50) / calcPencert;///  0.8,  1,  1.2,  1.5;
+            if (recommend > (decimal)6.5)
             {
-                recommend = 6;
+                recommend = (decimal)6.5;
             }
             return recommend;
 
@@ -88,17 +88,17 @@ namespace AutoSpot
         {
             if (huiluo == CalcPriceHuiluo.high)
             {
-                return (decimal)1;
+                return (decimal)1.1;
             }
             if (huiluo == CalcPriceHuiluo.highest)
             {
-                return (decimal)0.8;
+                return (decimal)0.9;
             }
             if (huiluo == CalcPriceHuiluo.little)
             {
                 return (decimal)1.2;
             }
-            return (decimal)1.5;
+            return (decimal)1.3;
         }
 
         public static void ClearData()
@@ -385,18 +385,18 @@ namespace AutoSpot
         {
             if (huiluo == CalcPriceHuiluo.highest)
             {
-                return (decimal)1.022;
+                return (decimal)1.026;
             }
             if (huiluo == CalcPriceHuiluo.high)
             {
-                return (decimal)1.025;
+                return (decimal)1.028;
             }
 
             if (huiluo == CalcPriceHuiluo.little)
             {
-                return (decimal)1.028;
+                return (decimal)1.030;
             }
-            return (decimal)1.031;
+            return (decimal)1.032;
         }
 
         private static void QueryDetailAndUpdate(string orderId)
