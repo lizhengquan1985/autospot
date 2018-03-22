@@ -334,7 +334,7 @@ namespace AutoSpot
                 decimal itemNowOpen = 0;
                 decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyOrderPrice, item.BuyDate, coin, "usdt", out itemNowOpen);
 
-                decimal gaoyuPercentSell = (decimal)1.03;
+                decimal gaoyuPercentSell = (decimal)1.035;
                 if (needSellList.Count > 10)
                 {
                     gaoyuPercentSell = (decimal)1.050;
@@ -378,6 +378,35 @@ namespace AutoSpot
                         logger.Error($"出售结果 coin{coin} accountId:{accountId}  出售数量{sellQuantity} itemNowOpen{itemNowOpen} higher{higher} {JsonConvert.SerializeObject(order)}");
                         logger.Error($"出售结果 分析 {JsonConvert.SerializeObject(flexPointList)}");
                     }
+                    ClearData();
+                }
+            }
+
+            // 判断是否出售老的数据 old old old old old old old old old old old old old old old old old
+            var oldSelllist = new OldCoinDao().ListNoSellRecord(coin);
+            foreach (var item in oldSelllist)
+            {
+                // 分析是否 大于
+                decimal itemNowOpen = 0;
+                decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyPrice, item.BuyDate, coin, "usdt", out itemNowOpen);
+
+                decimal gaoyuPercentSell = (decimal)1.04;
+
+                if (CheckCanSell(item.BuyPrice, higher, itemNowOpen, gaoyuPercentSell))
+                {
+                    decimal sellQuantity = item.BuyAmount * (decimal)0.99;
+                    sellQuantity = decimal.Round(sellQuantity, getSellPrecisionNumber(coin));
+                    // 出售
+                    decimal sellPrice = decimal.Round(itemNowOpen * (decimal)0.985, getPrecisionNumber(coin));
+                    ResponseOrder order = new AccountOrder().NewOrderSell(accountId, sellQuantity, sellPrice, null, coin, "usdt");
+                    if (order.status != "error")
+                    {
+                        new OldCoinDao().SetHasSell(item.Id, sellQuantity, JsonConvert.SerializeObject(order), JsonConvert.SerializeObject(flexPointList));
+                    }
+                    
+                    logger.Error($"old出售结果 coin{coin} accountId:{accountId}  出售数量{sellQuantity} itemNowOpen{itemNowOpen} higher{higher} {JsonConvert.SerializeObject(order)}");
+                    logger.Error($"old出售结果 分析 {JsonConvert.SerializeObject(flexPointList)}");
+                   
                     ClearData();
                 }
             }
