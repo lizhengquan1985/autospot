@@ -70,6 +70,7 @@
     <Compile Include="CoinDao.cs" />
     <Compile Include="CoinTrade.cs" />
     <Compile Include="DataType.cs" />
+    <Compile Include="OldCoinDao.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Test.cs" />

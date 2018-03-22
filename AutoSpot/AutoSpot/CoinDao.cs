@@ -165,23 +165,4 @@ namespace AutoSpot
         public string SellOrderId { get; set; }
         public string SellOrderQuery { get; set; }
     }
-
-    public class BuyRecord
-    {
-        public long Id { get; set; }
-        public string BuyCoin { get; set; }
-        public decimal BuyPrice { get; set; }
-        public DateTime BuyDate { get; set; }
-        public bool HasSell { get; set; }
-
-        public string BuyAnalyze { get; set; }
-        public string SellAnalyze { get; set; }
-        public string BuyOrderResult { get; set; }
-        public string SellOrderResult { get; set; }
-
-        public DateTime SellDate { get; set; }
-        public decimal SellAmount { get; set; }
-        public decimal BuyAmount { get; set; }
-        public string UserName { get; set; }
-    }
 }
