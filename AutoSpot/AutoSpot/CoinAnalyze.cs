@@ -209,7 +209,7 @@ namespace AutoSpot
             return new List<FlexPoint>();
         }
 
-        public decimal AnalyzeNeedSell(decimal comparePrice, DateTime compareDate, string coin, string toCoin, out decimal nowOpen)
+        public decimal AnalyzeNeedSell(decimal comparePrice, DateTime compareDate, string coin, string toCoin, out decimal nowOpen, ResponseKline res)
         {
             // 当前open
             nowOpen = 0;
@@ -218,7 +218,7 @@ namespace AutoSpot
 
             try
             {
-                ResponseKline res = new AnaylyzeApi().kline(coin + toCoin, "1min", 1440);
+                //ResponseKline res = new AnaylyzeApi().kline(coin + toCoin, "1min", 1440);
 
                 nowOpen = res.data[0].open;
 

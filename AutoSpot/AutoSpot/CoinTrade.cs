@@ -322,13 +322,14 @@ namespace AutoSpot
                 }
             }
 
+            //ResponseKline res = new AnaylyzeApi().kline(coin + "usdt", "1min", 1440);
             // 查询数据库中已经下单数据，如果有，则比较之后的最高值，如果有，则出售
             var needSellList = new CoinDao().ListBuySuccessAndNoSellRecord(accountId, coin);
             foreach (var item in needSellList)
             {
                 // 分析是否 大于
                 decimal itemNowOpen = 0;
-                decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyOrderPrice, item.BuyDate, coin, "usdt", out itemNowOpen);
+                decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyOrderPrice, item.BuyDate, coin, "usdt", out itemNowOpen, res);
 
                 decimal gaoyuPercentSell = (decimal)1.035;
                 if (needSellList.Count > 10)
@@ -387,7 +388,7 @@ namespace AutoSpot
                 {
                     // 分析是否 大于
                     decimal itemNowOpen = 0;
-                    decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyPrice, item.BuyDate, coin, "usdt", out itemNowOpen);
+                    decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyPrice, item.BuyDate, coin, "usdt", out itemNowOpen, res);
 
                     decimal gaoyuPercentSell = (decimal)1.04;
 
