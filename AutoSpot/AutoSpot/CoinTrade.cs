@@ -65,11 +65,11 @@ namespace AutoSpot
             decimal recommend = 0;
             if (noSellCount < 80)
             {
-                recommend = (usdt.balance / 80) / calcPencert;///  0.8,  1,  1.2,  1.5;
+                recommend = (usdt.balance / 200) / calcPencert;///  0.8,  1,  1.2,  1.5;
             }
             else
             {
-                recommend = (usdt.balance / 51) / calcPencert;///  0.8,  1,  1.2,  1.5;
+                recommend = (usdt.balance / 120) / calcPencert;///  0.8,  1,  1.2,  1.5;
             }
             return Math.Min(recommend, AccountConfig.userName == "lzq" ? (decimal)7.1 : (decimal)3);
 
@@ -84,6 +84,7 @@ namespace AutoSpot
 
         private static decimal getCalcPencent(CalcPriceHuiluo huiluo)
         {
+            return 1;
             if (huiluo == CalcPriceHuiluo.high)
             {
                 return (decimal)1.1;
