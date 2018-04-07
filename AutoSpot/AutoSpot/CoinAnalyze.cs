@@ -121,7 +121,7 @@ namespace AutoSpot
         /// </summary>
         /// <param name="coin"></param>
         /// <param name="toCoin"></param>
-        public List<FlexPoint> Analyze(ResponseKline res, out decimal lastLow, out decimal nowOpen)
+        public List<FlexPoint> Analyze(ResponseKline res, out decimal lastLow, out decimal nowOpen, decimal flexPercent)
         {
             nowOpen = 0;
             lastLow = 999999999;
@@ -155,7 +155,7 @@ namespace AutoSpot
                         idLow = item.id;
                     }
 
-                    if (openHigh >= openLow * (decimal)1.04)
+                    if (openHigh >= openLow * (decimal)flexPercent)
                     {
                         var dtHigh = Utils.GetDateById(idHigh);
                         var dtLow = Utils.GetDateById(idLow);

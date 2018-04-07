@@ -183,7 +183,13 @@ namespace AutoSpot
             decimal lastLow;
             decimal nowOpen;
             // 分析是否下跌， 下跌超过一定数据，可以考虑
-            var flexPointList = new CoinAnalyze().Analyze(res, out lastLow, out nowOpen);
+            decimal flexPercent = (decimal)1.04;
+            var flexPointList = new CoinAnalyze().Analyze(res, out lastLow, out nowOpen, flexPercent);
+            if(flexPointList== null || flexPointList.Count <= 1)
+            {
+                flexPercent = (decimal)1.03;
+                flexPointList = new CoinAnalyze().Analyze(res, out lastLow, out nowOpen, flexPercent);
+            }
             if (flexPointList.Count == 0)
             {
                 logger.Error($"--------------> 分析结果数量为0 {coin}");
@@ -356,6 +362,11 @@ namespace AutoSpot
                 else if (needSellList.Count > 5)
                 {
                     gaoyuPercentSell = (decimal)1.04;
+                }
+
+                if(flexPercent < (decimal)1.04)
+                {
+                    gaoyuPercentSell = (decimal)1.035;
                 }
 
                 if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen, gaoyuPercentSell))

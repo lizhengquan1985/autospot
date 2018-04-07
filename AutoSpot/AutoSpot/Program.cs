@@ -17,7 +17,7 @@ namespace AutoSpot
             XmlConfigurator.Configure(new FileInfo("log4net.config"));
             ILog logger = LogManager.GetLogger("program");
 
-            AccountConfig.init("yxq");
+            AccountConfig.init("lzq");
 
             Console.WriteLine($"{AccountConfig.mainAccountId}， {AccountConfig.accessKey}， {AccountConfig.secretKey}， {AccountConfig.sqlConfig}");
             logger.Error("-------------------------- 软件账户配置完成 ---------------------------------");
