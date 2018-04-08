@@ -112,7 +112,7 @@ namespace AutoSpot
             return nowOpen > nearLowOpen * (decimal)1.005 && nowOpen < nearLowOpen * (decimal)1.01;
         }
 
-        public static bool CheckCanSell(decimal buyPrice, decimal nearHigherOpen, decimal nowOpen, decimal gaoyuPercentSell = (decimal)1.03)
+        public static bool CheckCanSell(decimal buyPrice, decimal nearHigherOpen, decimal nowOpen, decimal gaoyuPercentSell = (decimal)1.03, bool needHuitou = true)
         {
             //item.BuyPrice, higher, itemNowOpen
             // if (item.BuyPrice * (decimal)1.05 < higher && itemNowOpen * (decimal)1.005 < higher)
@@ -122,9 +122,14 @@ namespace AutoSpot
                 return false;
             }
 
-            if (nowOpen * (decimal)1.005 < nearHigherOpen)
+            if (nowOpen * (decimal)1.005 < nearHigherOpen && needHuitou)
             {
                 // 表示回头趋势， 暂时定为 0.5% 就有回头趋势
+                return true;
+            }
+
+            if (nowOpen * (decimal)1.001 < nearHigherOpen && !needHuitou)
+            {
                 return true;
             }
 
@@ -332,6 +337,14 @@ namespace AutoSpot
             //ResponseKline res = new AnaylyzeApi().kline(coin + "usdt", "1min", 1440);
             // 查询数据库中已经下单数据，如果有，则比较之后的最高值，如果有，则出售
             var needSellList = new CoinDao().ListBuySuccessAndNoSellRecord(accountId, coin);
+            SpotRecord last = null;
+            foreach (var item in needSellList)
+            {
+                if(last == null || item.BuyDate > last.BuyDate)
+                {
+                    last = item;
+                }
+            }
             foreach (var item in needSellList)
             {
                 // 分析是否 大于
@@ -364,12 +377,18 @@ namespace AutoSpot
                     gaoyuPercentSell = (decimal)1.04;
                 }
 
+                bool needHuitou = true;// 如果很久没有出售过,则要考虑不需要回头
                 if(flexPercent < (decimal)1.04)
                 {
                     gaoyuPercentSell = (decimal)1.035;
+                    if(flexPointList.Count <= 2 && last.BuyDate < DateTime.Now.AddDays(-1))
+                    {
+                        // 1天都没有交易. 并且波动比较小. 则不需要回头
+                        needHuitou = false;
+                    }
                 }
 
-                if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen, gaoyuPercentSell))
+                if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen, gaoyuPercentSell, needHuitou))
                 {
                     decimal sellQuantity = item.BuyTotalQuantity * (decimal)0.99;
                     sellQuantity = decimal.Round(sellQuantity, getSellPrecisionNumber(coin));
