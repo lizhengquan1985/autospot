@@ -181,7 +181,12 @@ namespace AutoSpot
                     }
                 }
 
-                if (flexPointList[0].isHigh)
+                if(flexPointList.Count == 0)
+                {
+                    logger.Error("flexpointlist 长度为0");
+                }
+
+                if (flexPointList.Count != 0 && flexPointList[0].isHigh)
                 {
                     // 
                     foreach (var item in res.data)
@@ -191,13 +196,6 @@ namespace AutoSpot
                             lastLow = item.open;
                         }
                     }
-                }
-
-                if (flexPointList.Count < 0)
-                {
-                    logger.Error($"--------------{idHigh}------{idLow}------------------");
-                    logger.Error(JsonConvert.SerializeObject(flexPointList));
-                    logger.Error(JsonConvert.SerializeObject(res.data));
                 }
 
                 return flexPointList;

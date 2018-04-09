@@ -41,11 +41,11 @@ namespace AutoSpot
             "btc","bch","eth","etc","ltc",
             "eos","xrp","omg","dash","zec",
             // 创新
-            "trx","mds","ela",
-            "itc","nas","ruff","zil","dta",
-            "let","ht","theta","hsr","qtum",
-            "snt","iost","neo","storj","gnt",
-            "cvc","smt","ven","elf","xem",
+            "ont","iost","ht","trx",
+            "dta","neo","qtum","ela","ven",
+            "theta","snt","zil","xem","smt",
+            "nas","ruff","hsr","let","mds",
+            "storj","elf","itc","cvc","gnt",
         };
         public static void Run()
         {
