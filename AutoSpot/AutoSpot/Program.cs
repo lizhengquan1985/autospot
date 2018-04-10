@@ -57,7 +57,7 @@ namespace AutoSpot
                     {
                         continue;
                     }
-                    Thread.Sleep(100);
+                    Thread.Sleep(50);
                     CoinTrade.Start(coin);
                 }
             }
