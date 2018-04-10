@@ -46,7 +46,7 @@ namespace AutoSpot
                 }
             }
             logger.Error($"火币回落, {max}, {min} {res.data[0].open}");
-            return max > res.data[0].open * (decimal)1.06; // 是否下降6%
+            return max > res.data[0].open * (decimal)1.02; // 是否下降2%
         }
 
 

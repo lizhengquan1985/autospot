@@ -192,7 +192,7 @@ namespace AutoSpot
             // 分析是否下跌， 下跌超过一定数据，可以考虑
             decimal flexPercent = (decimal)1.04;
             var flexPointList = new CoinAnalyze().Analyze(res, out lastLow, out nowOpen, flexPercent);
-            if(flexPointList== null || flexPointList.Count <= 1)
+            if (flexPointList == null || flexPointList.Count <= 1)
             {
                 flexPercent = (decimal)1.03;
                 flexPointList = new CoinAnalyze().Analyze(res, out lastLow, out nowOpen, flexPercent);
@@ -294,7 +294,7 @@ namespace AutoSpot
 
                     // 再少于5%， 
                     var per = new CoinAnalyze().CalcPercent(coin);
-                    decimal pecent = getCalcPencent222(per);//noSellCount >= 15 ? (decimal)1.03 : (decimal)1.025;
+                    decimal pecent = getCalcPencent222(per, flexPointList.Count);//noSellCount >= 15 ? (decimal)1.03 : (decimal)1.025;
                     if (nowOpen * pecent < minBuyPrice)
                     {
                         decimal buyQuantity = recommendAmount / nowOpen;
@@ -342,7 +342,7 @@ namespace AutoSpot
             SpotRecord last = null;
             foreach (var item in needSellList)
             {
-                if(last == null || item.BuyDate > last.BuyDate)
+                if (last == null || item.BuyDate > last.BuyDate)
                 {
                     last = item;
                 }
@@ -380,10 +380,10 @@ namespace AutoSpot
                 }
 
                 bool needHuitou = true;// 如果很久没有出售过,则要考虑不需要回头
-                if(flexPercent < (decimal)1.04)
+                if (flexPercent < (decimal)1.04)
                 {
                     gaoyuPercentSell = (decimal)1.035;
-                    if(flexPointList.Count <= 2 && last.BuyDate < DateTime.Now.AddDays(-1))
+                    if (flexPointList.Count <= 2 && last.BuyDate < DateTime.Now.AddDays(-1))
                     {
                         // 1天都没有交易. 并且波动比较小. 则不需要回头
                         needHuitou = false;
@@ -453,22 +453,22 @@ namespace AutoSpot
             }
         }
 
-        private static decimal getCalcPencent222(CalcPriceHuiluo huiluo)
+        private static decimal getCalcPencent222(CalcPriceHuiluo huiluo, int flexCount)
         {
             if (huiluo == CalcPriceHuiluo.highest)
             {
-                return (decimal)1.026;
+                return (decimal)(flexCount > 3 ? 1.032 : 1.028);
             }
             if (huiluo == CalcPriceHuiluo.high)
             {
-                return (decimal)1.028;
+                return (decimal)(flexCount > 3 ? 1.035 : 1.030);
             }
 
             if (huiluo == CalcPriceHuiluo.little)
             {
-                return (decimal)1.030;
+                return (decimal)(flexCount > 3 ? 1.038 : 1.032);
             }
-            return (decimal)1.032;
+            return (decimal)(flexCount > 3 ? 1.041 : 1.034);
         }
 
         private static void QueryDetailAndUpdate(string orderId)
