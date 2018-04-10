@@ -109,7 +109,9 @@ namespace AutoSpot
         public static bool CheckCanBuy(decimal nowOpen, decimal nearLowOpen)
         {
             //nowOpen > flexPointList[0].open * (decimal)1.005 && nowOpen < flexPointList[0].open * (decimal)1.01
-            return nowOpen > nearLowOpen * (decimal)1.005 && nowOpen < nearLowOpen * (decimal)1.01;
+            var canbuy = nowOpen > nearLowOpen * (decimal)1.005 && nowOpen < nearLowOpen * (decimal)1.01;
+            logger.Error($"------- {canbuy}还不能购买 nowOpen:{nowOpen}, nearLowOpen:{nearLowOpen}");
+            return canbuy;
         }
 
         public static bool CheckCanSell(decimal buyPrice, decimal nearHigherOpen, decimal nowOpen, decimal gaoyuPercentSell = (decimal)1.03, bool needHuitou = true)
@@ -173,7 +175,7 @@ namespace AutoSpot
             {
                 if (nowOpen > min * (decimal)1.03)
                 {
-                    logger.Error("一个小时内有大量的上涨，防止追涨，所以不能交易。");
+                    logger.Error($"一个小时内有大量的上涨，防止追涨，所以不能交易。 {nowOpen}");
                     isQuickRise = true;
                 }
             }
