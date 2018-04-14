@@ -150,7 +150,7 @@ namespace AutoSpot
             }
         }
 
-        public static bool IsQuickRise(ResponseKline res)
+        public static bool IsQuickRise(string coin, ResponseKline res)
         {
             // 判断是否快速上涨，如果是快速上涨，防止追涨
             var klineData = res.data;
@@ -175,7 +175,7 @@ namespace AutoSpot
             {
                 if (nowOpen > min * (decimal)1.03)
                 {
-                    logger.Error($"一个小时内有大量的上涨，防止追涨，所以不能交易。 {nowOpen}");
+                    logger.Error($"一个小时内有大量的上涨，防止追涨，所以不能交易。coin:{coin}, nowOpen:{nowOpen}, min:{min}, max:{max}");
                     isQuickRise = true;
                 }
             }
@@ -235,7 +235,7 @@ namespace AutoSpot
                 logger.Error(ex.Message, ex);
             }
 
-            if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > (decimal)0.3 && !IsQuickRise(res))
+            if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > (decimal)0.3 && !IsQuickRise(coin, res))
             {
                 var noSellCount = new CoinDao().GetNoSellRecordCount(accountId, coin);
                 // 最后一次是高位, 没有交易记录， 则判断是否少于最近的6%
