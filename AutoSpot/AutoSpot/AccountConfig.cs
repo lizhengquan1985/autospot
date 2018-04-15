@@ -8,7 +8,7 @@ namespace AutoSpot
 {
     public class AccountConfig
     {
-        public static string userName = "yxq";
+        public static string userName = "";
         // default yanxiuq
         public static string accessKey = "";
         public static string secretKey = "";
@@ -21,7 +21,13 @@ namespace AutoSpot
         {
             userName = role;
 
-
+            // 初始化accessKey，secretKey
+            if (role == "lzq")
+            {
+            }
+            else if (role == "yxq")
+            {
+            }
         }
     }
 }
