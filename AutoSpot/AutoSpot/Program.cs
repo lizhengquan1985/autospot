@@ -41,7 +41,7 @@ namespace AutoSpot
             "btc","bch","eth","etc","ltc",
             "eos","xrp","omg","dash","zec",
             // 创新
-            "ont","iost","ht","trx",
+            "bts", "ont","iost","ht","trx",
             "dta","neo","qtum","ela","ven",
             "theta","snt","zil","xem","smt",
             "nas","ruff","hsr","let","mds",
@@ -57,7 +57,7 @@ namespace AutoSpot
                     {
                         continue;
                     }
-                    Thread.Sleep(50);
+                    Thread.Sleep(10);
                     CoinTrade.Start(coin);
                 }
             }
