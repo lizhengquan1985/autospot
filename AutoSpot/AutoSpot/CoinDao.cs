@@ -68,7 +68,13 @@ namespace AutoSpot
         /// <returns></returns>
         public int GetNoSellRecordCount(string accountId, string coin)
         {
-            var sql = $"select count(1) from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}'";
+            var sql = $"select count(1) from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}' and celuo=0";
+            return Database.Query<int>(sql).FirstOrDefault();
+        }
+
+        public int GetNoSellRecordCountForCelue1(string accountId, string coin)
+        {
+            var sql = $"select count(1) from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}' and celuo=1 and BuyDate>'{DateTime.Now.AddHours(-4).ToString("yy-MM-dd HH:mm:ss")}'";
             return Database.Query<int>(sql).FirstOrDefault();
         }
 
@@ -90,9 +96,9 @@ namespace AutoSpot
             return Database.Query<BuyRecord>(sql).ToList();
         }
 
-        public List<SpotRecord> ListBuySuccessAndNoSellRecord(string accountId, string coin)
+        public List<SpotRecord> ListBuySuccessAndNoSellRecord(string accountId, string coin,int celue)
         {
-            var sql = $"select * from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and BuySuccess=1 and UserName='{AccountConfig.userName}'";
+            var sql = $"select * from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and BuySuccess=1 and UserName='{AccountConfig.userName}' and celue={celue}";
             return Database.Query<SpotRecord>(sql).ToList();
         }
 
@@ -164,5 +170,6 @@ namespace AutoSpot
         public string BuyOrderQuery { get; set; }
         public string SellOrderId { get; set; }
         public string SellOrderQuery { get; set; }
+        public int Celuo { get; set; }
     }
 }
