@@ -527,7 +527,7 @@ namespace AutoSpot
 
         public static int getSellPrecisionNumber(string coin)
         {
-            if (coin == "cvc" || coin == "ht" || coin == "xrp" || coin == "ela" || coin == "mds" || coin == "trx" || coin == "bts")
+            if (coin == "cvc" || coin == "ht" || coin == "xrp" || coin == "ela" || coin == "mds" || coin == "trx" || coin == "bts" || coin == "btm")
             {
                 return 2;
             }

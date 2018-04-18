@@ -17,7 +17,7 @@ namespace AutoSpot
             XmlConfigurator.Configure(new FileInfo("log4net.config"));
             ILog logger = LogManager.GetLogger("program");
 
-            AccountConfig.init("lzq");
+            AccountConfig.init("yxq");
 
             Console.WriteLine($"{AccountConfig.mainAccountId}， {AccountConfig.accessKey}， {AccountConfig.secretKey}， {AccountConfig.sqlConfig}");
             logger.Error("-------------------------- 软件账户配置完成 ---------------------------------");
@@ -41,7 +41,7 @@ namespace AutoSpot
             "ada","btc","bch","eth","etc","ltc",
             "eos","xrp","omg","dash","zec",
             // 创新
-            "bts", "ont","iost","ht","trx",
+            "btm", "bts", "ont","iost","ht","trx",
             "dta","neo","qtum","ela","ven",
             "theta","snt","zil","xem","smt",
             "nas","ruff","hsr","let","mds",
