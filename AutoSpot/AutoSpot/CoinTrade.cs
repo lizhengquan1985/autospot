@@ -408,6 +408,7 @@ namespace AutoSpot
             //ResponseKline res = new AnaylyzeApi().kline(coin + "usdt", "1min", 1440);
             // 查询数据库中已经下单数据，如果有，则比较之后的最高值，如果有，则出售
             var needSellList = new CoinDao().ListBuySuccessAndNoSellRecord(accountId, coin, celuo);
+            logger.Error($"查看出售策略: {celuo}, needSellListCount:{needSellList.Count}");
             if (celuo == 0)
             {
                 SpotRecord last = null;
@@ -418,6 +419,7 @@ namespace AutoSpot
                         last = item;
                     }
                 }
+                logger.Error($"查看出售策略: last --> {JsonConvert.SerializeObject(last)}, ");
                 foreach (var item in needSellList)
                 {
                     // 分析是否 大于
@@ -460,6 +462,8 @@ namespace AutoSpot
                             needHuitou = false;
                         }
                     }
+
+                    logger.Error($"查看出售策略: needHuitou --> {needHuitou}, gaoyuPercentSell:{gaoyuPercentSell}, item.BuyOrderPrice:{item.BuyOrderPrice} ,higher:{higher}, itemNowOpen:{itemNowOpen}");
 
                     if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen, gaoyuPercentSell, needHuitou))
                     {
