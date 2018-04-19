@@ -80,7 +80,7 @@ namespace AutoSpot
 
         public List<SpotRecord> ListNoSellRecord(string accountId, string coin)
         {
-            var sql = $"select * from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}'";
+            var sql = $"select * from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}' and celuo=0";
             return Database.Query<SpotRecord>(sql).ToList();
         }
 
