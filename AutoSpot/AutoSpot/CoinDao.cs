@@ -98,7 +98,7 @@ namespace AutoSpot
 
         public List<SpotRecord> ListBuySuccessAndNoSellRecord(string accountId, string coin,int celue)
         {
-            var sql = $"select * from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and BuySuccess=1 and UserName='{AccountConfig.userName}' and celue={celue}";
+            var sql = $"select * from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and BuySuccess=1 and UserName='{AccountConfig.userName}' and celuo={celue}";
             return Database.Query<SpotRecord>(sql).ToList();
         }
 
