@@ -303,7 +303,7 @@ namespace AutoSpot
                         }
                     }
                 }
-                if(!flexPointList[0].isHigh)
+                if(flexPointList.Count > 0 && !flexPointList[0].isHigh)
                 {
                     var noSellCount = new CoinDao().GetNoSellRecordCount(accountId, coin);
                     // 最后一次是高位, 没有交易记录， 则判断是否少于最近的6%
