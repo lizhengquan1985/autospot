@@ -206,18 +206,19 @@ namespace AutoSpot
                 flexPointList = new CoinAnalyze().Analyze(res, out lastLow, out nowOpen, flexPercent);
             }
             int celuo = 0; //默认 下面一截都是在平稳时候的策略
+            var celue2FlextPointList = new List<FlexPoint>();
             if (flexPointList == null || flexPointList.Count <= 1)
             {
                 flexPercent = (decimal)1.02;
-                flexPointList = new CoinAnalyze().Analyze(res, out lastLow, out nowOpen, flexPercent);
+                celue2FlextPointList = new CoinAnalyze().Analyze(res, out lastLow, out nowOpen, flexPercent);
                 celuo = 1;
                 if(flexPointList == null || flexPointList.Count < 1)
                 {
                     flexPercent = (decimal)1.015;
-                    flexPointList = new CoinAnalyze().Analyze(res, out lastLow, out nowOpen, flexPercent);
+                    celue2FlextPointList = new CoinAnalyze().Analyze(res, out lastLow, out nowOpen, flexPercent);
                 }
             }
-            if (flexPointList.Count == 0)
+            if (flexPointList.Count == 0 && celue2FlextPointList.Count == 0)
             {
                 logger.Error($"--------------> 分析结果数量为0 {coin}");
                 return;
@@ -255,10 +256,9 @@ namespace AutoSpot
                 logger.Error(ex.Message, ex);
             }
 
-            if (!flexPointList[0].isHigh && CheckBalance() && recommendAmount > (decimal)0.3 && !IsQuickRise(coin, res))
+            if (CheckBalance() && recommendAmount > (decimal)0.3 && !IsQuickRise(coin, res))
             {
-                var noSellCount = new CoinDao().GetNoSellRecordCount(accountId, coin);
-                if (celuo > 0)
+                if (celuo > 0 && celue2FlextPointList.Count > 0 && !celue2FlextPointList[0].isHigh && recommendAmount > (decimal)1.3)
                 {
                     var celue1count = new CoinDao().GetNoSellRecordCountForCelue1(accountId, coin);
                     if (celue1count <= 0 && new CoinAnalyze().CheckCalcMaxhuoluo(coin, "usdt", "5min"))
@@ -303,8 +303,9 @@ namespace AutoSpot
                         }
                     }
                 }
-                else
+                if(!flexPointList[0].isHigh)
                 {
+                    var noSellCount = new CoinDao().GetNoSellRecordCount(accountId, coin);
                     // 最后一次是高位, 没有交易记录， 则判断是否少于最近的6%
                     if (noSellCount <= 0 && CheckCanBuy(nowOpen, flexPointList[0].open, celuo) && new CoinAnalyze().CheckCalcMaxhuoluo(coin, "usdt", "5min"))
                     {
@@ -407,10 +408,9 @@ namespace AutoSpot
 
             //ResponseKline res = new AnaylyzeApi().kline(coin + "usdt", "1min", 1440);
             // 查询数据库中已经下单数据，如果有，则比较之后的最高值，如果有，则出售
-            var needSellList = new CoinDao().ListBuySuccessAndNoSellRecord(accountId, coin, celuo);
-            logger.Error($"查看出售策略: {celuo}, needSellListCount:{needSellList.Count}");
-            if (celuo == 0)
+
             {
+                var needSellList = new CoinDao().ListBuySuccessAndNoSellRecord(accountId, coin, 0);
                 SpotRecord last = null;
                 foreach (var item in needSellList)
                 {
@@ -419,7 +419,7 @@ namespace AutoSpot
                         last = item;
                     }
                 }
-                logger.Error($"查看出售策略: last --> {JsonConvert.SerializeObject(last)}, ");
+
                 foreach (var item in needSellList)
                 {
                     // 分析是否 大于
@@ -463,9 +463,9 @@ namespace AutoSpot
                         }
                     }
 
-                    logger.Error($"查看出售策略: needHuitou --> {needHuitou}, gaoyuPercentSell:{gaoyuPercentSell}, item.BuyOrderPrice:{item.BuyOrderPrice} ,higher:{higher}, itemNowOpen:{itemNowOpen}");
+                    var canSell = CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen, gaoyuPercentSell, needHuitou);
 
-                    if (CheckCanSell(item.BuyOrderPrice, higher, itemNowOpen, gaoyuPercentSell, needHuitou))
+                    if (canSell)
                     {
                         decimal sellQuantity = item.BuyTotalQuantity * (decimal)0.99;
                         sellQuantity = decimal.Round(sellQuantity, getSellPrecisionNumber(coin));
@@ -487,8 +487,8 @@ namespace AutoSpot
                     }
                 }
             }
-            else
             {
+                var needSellList = new CoinDao().ListBuySuccessAndNoSellRecord(accountId, coin, 1);
                 foreach (var item in needSellList)
                 {
                     // 分析是否 大于
