@@ -41,7 +41,7 @@ namespace AutoSpot
             "ada","btc","bch","eth","etc","ltc",
             "eos","xrp","omg","dash","zec",
             // 创新
-            "btm", "bts", "ont","iost","ht","trx",
+            "act", "btm", "bts", "ont","iost","ht","trx",
             "dta","neo","qtum","ela","ven",
             "theta","snt","zil","xem","smt",
             "nas","ruff","hsr","let","mds",

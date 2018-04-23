@@ -71,7 +71,7 @@ namespace AutoSpot
             {
                 recommend = (usdt.balance / 160) / calcPencert;///  0.8,  1,  1.2,  1.5;
             }
-            return Math.Min(recommend, AccountConfig.userName == "lzq" ? (decimal)8.2 : (decimal)4.5);
+            return Math.Min(recommend, AccountConfig.userName == "lzq" ? (decimal)10.5 : (decimal)6.5);
 
             //if (noSellCount > 80)
             //{
@@ -469,6 +469,10 @@ namespace AutoSpot
                     {
                         decimal sellQuantity = item.BuyTotalQuantity * (decimal)0.99;
                         sellQuantity = decimal.Round(sellQuantity, getSellPrecisionNumber(coin));
+                        if (coin == "xrp" && sellQuantity < 1)
+                        {
+                            sellQuantity = 1;
+                        }
                         // 出售
                         decimal sellPrice = decimal.Round(itemNowOpen * (decimal)0.985, getPrecisionNumber(coin));
                         ResponseOrder order = new AccountOrder().NewOrderSell(accountId, sellQuantity, sellPrice, null, coin, "usdt");
@@ -503,6 +507,10 @@ namespace AutoSpot
                     {
                         decimal sellQuantity = item.BuyTotalQuantity * (decimal)0.99;
                         sellQuantity = decimal.Round(sellQuantity, getSellPrecisionNumber(coin));
+                        if(coin =="xrp" && sellQuantity < 1)
+                        {
+                            sellQuantity = 1;
+                        }
                         // 出售
                         decimal sellPrice = decimal.Round(itemNowOpen * (decimal)0.985, getPrecisionNumber(coin));
                         ResponseOrder order = new AccountOrder().NewOrderSell(accountId, sellQuantity, sellPrice, null, coin, "usdt");
@@ -637,7 +645,7 @@ namespace AutoSpot
 
         public static int getSellPrecisionNumber(string coin)
         {
-            if (coin == "cvc" || coin == "ht" || coin == "xrp" || coin == "ela" || coin == "mds" || coin == "trx" || coin == "bts" || coin == "btm")
+            if (coin == "cvc" || coin == "ht" || coin == "xrp" || coin == "ela" || coin == "mds" || coin == "trx" || coin == "bts" || coin == "btm" || coin == "act")
             {
                 return 2;
             }
