@@ -530,45 +530,45 @@ namespace AutoSpot
                 }
             }
 
-            try
-            {
-                // 判断是否出售老的数据 old old old old old old old old old old old old old old old old old
-                var oldSelllist = new OldCoinDao().ListNoSellRecord(coin);
-                Console.WriteLine($"老的数据,需要出售 ${oldSelllist.Count}");
-                foreach (var item in oldSelllist)
-                {
-                    // 分析是否 大于
-                    decimal itemNowOpen = 0;
-                    decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyPrice, item.BuyDate, coin, "usdt", out itemNowOpen, res);
+            //try
+            //{
+            //    // 判断是否出售老的数据 old old old old old old old old old old old old old old old old old
+            //    var oldSelllist = new OldCoinDao().ListNoSellRecord(coin);
+            //    Console.WriteLine($"老的数据,需要出售 ${oldSelllist.Count}");
+            //    foreach (var item in oldSelllist)
+            //    {
+            //        // 分析是否 大于
+            //        decimal itemNowOpen = 0;
+            //        decimal higher = new CoinAnalyze().AnalyzeNeedSell(item.BuyPrice, item.BuyDate, coin, "usdt", out itemNowOpen, res);
 
-                    decimal gaoyuPercentSell = (decimal)1.04;
+            //        decimal gaoyuPercentSell = (decimal)1.04;
 
-                    if (CheckCanSell(item.BuyPrice, higher, itemNowOpen, gaoyuPercentSell))
-                    {
-                        Console.WriteLine($"老的数据, 满足出售条件 需要出售 ${oldSelllist.Count} 购买价格{item.BuyPrice} 现在价位{itemNowOpen}");
+            //        if (CheckCanSell(item.BuyPrice, higher, itemNowOpen, gaoyuPercentSell))
+            //        {
+            //            Console.WriteLine($"老的数据, 满足出售条件 需要出售 ${oldSelllist.Count} 购买价格{item.BuyPrice} 现在价位{itemNowOpen}");
 
-                        decimal sellQuantity = item.BuyAmount * (decimal)0.99;
-                        sellQuantity = decimal.Round(sellQuantity, getSellPrecisionNumber(coin));
-                        // 出售
-                        decimal sellPrice = decimal.Round(itemNowOpen * (decimal)0.985, getPrecisionNumber(coin));
-                        ResponseOrder order = new AccountOrder().NewOrderSell(accountId, sellQuantity, sellPrice, null, coin, "usdt");
-                        if (order.status != "error")
-                        {
-                            new OldCoinDao().SetHasSell(item.Id, sellQuantity, JsonConvert.SerializeObject(order), JsonConvert.SerializeObject(flexPointList));
-                        }
+            //            decimal sellQuantity = item.BuyAmount * (decimal)0.99;
+            //            sellQuantity = decimal.Round(sellQuantity, getSellPrecisionNumber(coin));
+            //            // 出售
+            //            decimal sellPrice = decimal.Round(itemNowOpen * (decimal)0.985, getPrecisionNumber(coin));
+            //            ResponseOrder order = new AccountOrder().NewOrderSell(accountId, sellQuantity, sellPrice, null, coin, "usdt");
+            //            if (order.status != "error")
+            //            {
+            //                new OldCoinDao().SetHasSell(item.Id, sellQuantity, JsonConvert.SerializeObject(order), JsonConvert.SerializeObject(flexPointList));
+            //            }
 
-                        logger.Error($"old出售结果 coin{coin} accountId:{accountId}  出售数量{sellQuantity}  购买价格{item.BuyPrice} itemNowOpen{itemNowOpen} higher{higher} {JsonConvert.SerializeObject(order)}");
-                        logger.Error($"old出售结果 分析 {JsonConvert.SerializeObject(flexPointList)}");
+            //            logger.Error($"old出售结果 coin{coin} accountId:{accountId}  出售数量{sellQuantity}  购买价格{item.BuyPrice} itemNowOpen{itemNowOpen} higher{higher} {JsonConvert.SerializeObject(order)}");
+            //            logger.Error($"old出售结果 分析 {JsonConvert.SerializeObject(flexPointList)}");
 
-                        ClearData();
-                    }
-                }
+            //            ClearData();
+            //        }
+            //    }
 
-            }
-            catch (Exception ex)
-            {
-
-            }
+            //}
+            //catch (Exception ex)
+            //{
+            //    Console.WriteLine($"老的数据,需要出售 ${ex.Message}");
+            //}
         }
 
         private static decimal getCalcPencent222(CalcPriceHuiluo huiluo, int flexCount)
