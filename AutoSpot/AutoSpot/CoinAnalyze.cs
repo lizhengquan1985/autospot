@@ -28,7 +28,7 @@ namespace AutoSpot
         static ILog logger = LogManager.GetLogger("CoinAnalyze");
         public bool CheckCalcMaxhuoluo(string coin, string toCoin, string minPeriod = "1min")
         {
-            ResponseKline res = new AnaylyzeApi().kline(coin + toCoin, minPeriod, 1440);
+            ResponseKline res = new AnaylyzeApi().kline(coin + toCoin, minPeriod, 1000);
             Console.WriteLine(Utils.GetDateById(res.data[0].id));
             Console.WriteLine(Utils.GetDateById(res.data[res.data.Count - 1].id));
             decimal max = 0;
@@ -52,7 +52,7 @@ namespace AutoSpot
 
         public decimal GetMinAndMax(string coin, string toCoin, string minPeriod = "1min")
         {
-            ResponseKline res = new AnaylyzeApi().kline(coin + toCoin, minPeriod, 1440);
+            ResponseKline res = new AnaylyzeApi().kline(coin + toCoin, minPeriod, 1000);
             Console.WriteLine(Utils.GetDateById(res.data[0].id));
             Console.WriteLine(Utils.GetDateById(res.data[res.data.Count - 1].id));
             decimal max = 0;
@@ -128,7 +128,7 @@ namespace AutoSpot
 
             try
             {
-                //ResponseKline res = new AnaylyzeApi().kline(coin + toCoin, "1min", 1440);
+                //ResponseKline res = new AnaylyzeApi().kline(coin + toCoin, "1min", 1000);
                 Console.WriteLine($"总数：{res.data.Count}");
                 //Console.WriteLine(Utils.GetDateById(res.data[0].id));
                 //Console.WriteLine(Utils.GetDateById(res.data[res.data.Count - 1].id));
@@ -216,7 +216,7 @@ namespace AutoSpot
 
             try
             {
-                //ResponseKline res = new AnaylyzeApi().kline(coin + toCoin, "1min", 1440);
+                //ResponseKline res = new AnaylyzeApi().kline(coin + toCoin, "1min", 1000);
 
                 nowOpen = res.data[0].open;
 

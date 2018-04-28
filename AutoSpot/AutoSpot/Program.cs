@@ -38,7 +38,7 @@ namespace AutoSpot
         }
 
         public static List<string> coins = new List<string>() {
-            "ada","btc","bch","eth","etc","ltc",
+            "steem","ada","btc","bch","eth","etc","ltc",
             "eos","xrp","omg","dash","zec",
             // 创新
             "ctxc", "act", "btm", "bts", "ont","iost","ht","trx",

@@ -71,7 +71,7 @@ namespace AutoSpot
             {
                 recommend = (usdt.balance / 160) / calcPencert;///  0.8,  1,  1.2,  1.5;
             }
-            return Math.Min(recommend, AccountConfig.userName == "lzq" ? (decimal)12.5 : (decimal)6.5);
+            return Math.Min(recommend, AccountConfig.userName == "lzq" ? (decimal)14.5 : (decimal)6.5);
 
             //if (noSellCount > 80)
             //{
@@ -193,7 +193,7 @@ namespace AutoSpot
         public static void BusinessRun(string coin)
         {
             var accountId = AccountConfig.mainAccountId;
-            ResponseKline res = new AnaylyzeApi().kline(coin + "usdt", "1min", 1440);
+            ResponseKline res = new AnaylyzeApi().kline(coin + "usdt", "1min", 1000);
             // 获取最近行情
             decimal lastLow;
             decimal nowOpen;
@@ -406,7 +406,7 @@ namespace AutoSpot
                 }
             }
 
-            //ResponseKline res = new AnaylyzeApi().kline(coin + "usdt", "1min", 1440);
+            //ResponseKline res = new AnaylyzeApi().kline(coin + "usdt", "1min", 1000);
             // 查询数据库中已经下单数据，如果有，则比较之后的最高值，如果有，则出售
 
             {
