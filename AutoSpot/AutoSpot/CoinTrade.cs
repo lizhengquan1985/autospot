@@ -71,7 +71,7 @@ namespace AutoSpot
             {
                 recommend = (usdt.balance / 160) / calcPencert;///  0.8,  1,  1.2,  1.5;
             }
-            return Math.Min(recommend, AccountConfig.userName == "lzq" ? (decimal)14.5 : (decimal)6.5);
+            return Math.Min(recommend, AccountConfig.userName == "lzq" ? (decimal)16.5 : (decimal)7.5);
 
             //if (noSellCount > 80)
             //{
