@@ -74,7 +74,7 @@ namespace AutoSpot
 
         public int GetNoSellRecordCountForCelue1(string accountId, string coin)
         {
-            var sql = $"select count(1) from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}' and celuo=1 and BuyDate>'{DateTime.Now.AddHours(-4).ToString("yy-MM-dd HH:mm:ss")}'";
+            var sql = $"select count(1) from t_spot_record where AccountId='{accountId}' and Coin = '{coin}' and HasSell=0 and UserName='{AccountConfig.userName}' and celuo=1 and BuyDate>'{DateTime.Now.AddHours(-6).ToString("yy-MM-dd HH:mm:ss")}'";
             return Database.Query<int>(sql).FirstOrDefault();
         }
 

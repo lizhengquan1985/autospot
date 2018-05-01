@@ -69,6 +69,10 @@ namespace AutoSpot
                     min = item.open;
                 }
             }
+            if(max == min)
+            {
+                return 1;
+            }
             return (now - min) / (max - min);
         }
 
